@@ -52,6 +52,8 @@ migrations/0001_init.sql
 
 ## One-time setup
 
+Every Wrangler command (setup, deploy, logs, database, R2, cron, backups, troubleshooting) is collected in [WRANGLER.md](WRANGLER.md).
+
 You need a Cloudflare account, Node 20+, and a Resend account.
 
 ### 1. Domain
