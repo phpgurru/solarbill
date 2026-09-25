@@ -1,54 +1,66 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "solarbill",
-  "main": "src/worker.js",
-  "compatibility_date": "2025-09-01",
-  "compatibility_flags": ["nodejs_compat"],
-
-  // The web app (HTML, JS, CSS) is served as static assets.
-  // Requests to /api/* and /auth/* run the Worker first.
-  "assets": {
-    "directory": "./public",
-    "binding": "ASSETS",
-    "not_found_handling": "404-page",
-    "run_worker_first": ["/api/*", "/auth/*"]
-  },
-
-  // Accounts, meters and parsed bill data
-  "d1_databases": [
-    {
-      "binding": "DB",
-      "database_name": "solarbill",
-      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
-      "migrations_dir": "migrations"
-    }
-  ],
-
-  // The original bill PDFs
-  "r2_buckets": [
-    { "binding": "BILLS", "bucket_name": "solarbill-pdfs" }
-  ],
-
-  // Daily check for "your new bill is out" reminder emails (06:00 UTC = 11:00 PKT)
-  "triggers": { "crons": ["0 6 * * *"] },
-
-  "vars": {
-    "APP_URL": "https://solarbill.pk",
-    "APP_NAME": "Solar Bill",
-    "EMAIL_FROM": "Solar Bill <hello@solarbill.pk>",
-    "ADMIN_EMAILS": "you@example.com",
-    "DEV_MODE": "0"
-  },
-
-  "observability": { "enabled": true }
-
-  // After adding your domain to Cloudflare, uncomment to serve the app on it:
-  // ,"routes": [
-  //   { "pattern": "solarbill.pk", "custom_domain": true },
-  //   { "pattern": "www.solarbill.pk", "custom_domain": true }
-  // ]
-
-  // Secrets (set with `npx wrangler secret put NAME`, never commit them):
-  //   RESEND_API_KEY   API key from resend.com for sign-in and reminder emails
-  //   SESSION_SECRET   any long random string, signs unsubscribe links
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "solarbill",
+	"main": "src/worker.js",
+	"compatibility_date": "2025-09-01",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	// The web app (HTML, JS, CSS) is served as static assets.
+	// Requests to /api/* and /auth/* run the Worker first.
+	"assets": {
+		"directory": "./public",
+		"binding": "ASSETS",
+		"not_found_handling": "404-page",
+		"run_worker_first": [
+			"/api/*",
+			"/auth/*"
+		]
+	},
+	// Accounts, meters and parsed bill data
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "solarbill",
+			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+			"migrations_dir": "migrations"
+		},
+		{
+			"binding": "solarbill",
+			"database_name": "solarbill",
+			"database_id": "7f5f2609-d051-4fec-93f1-12084b778e36",
+			"remote": true
+		}
+	],
+	// The original bill PDFs
+	"r2_buckets": [
+		{
+			"binding": "BILLS",
+			"bucket_name": "solarbill-pdfs"
+		}
+	],
+	// Daily check for "your new bill is out" reminder emails (06:00 UTC = 11:00 PKT)
+	"triggers": {
+		"crons": [
+			"0 6 * * *"
+		]
+	},
+	"vars": {
+		"APP_URL": "https://solarbill.pk",
+		"APP_NAME": "Solar Bill",
+		"EMAIL_FROM": "Solar Bill <hello@solarbill.pk>",
+		"ADMIN_EMAILS": "you@example.com",
+		"DEV_MODE": "0"
+	},
+	"observability": {
+		"enabled": true
+	}
+	// After adding your domain to Cloudflare, uncomment to serve the app on it:
+	// ,"routes": [
+	//   { "pattern": "solarbill.pk", "custom_domain": true },
+	//   { "pattern": "www.solarbill.pk", "custom_domain": true }
+	// ]
+	// Secrets (set with `npx wrangler secret put NAME`, never commit them):
+	//   RESEND_API_KEY   API key from resend.com for sign-in and reminder emails
+	//   SESSION_SECRET   any long random string, signs unsubscribe links
 }
