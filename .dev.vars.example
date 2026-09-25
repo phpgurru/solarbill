@@ -1,0 +1,5 @@
+# Copy to .dev.vars for local development (never commit .dev.vars)
+DEV_MODE=1
+SESSION_SECRET=local-dev-secret-change-me
+ADMIN_EMAILS=you@example.com
+# RESEND_API_KEY=re_...   # leave unset locally: sign-in links appear on screen instead
