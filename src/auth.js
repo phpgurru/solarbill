@@ -2,7 +2,7 @@
 import { json, fail, now, randomToken, newId, sha256Hex, parseCookies, isEmail, escapeHtml, page, hmac, safeEqual } from './util.js';
 import { sendEmail, loginEmail } from './email.js';
 
-const COOKIE = '__Host-sh_sid';
+const COOKIE = '__Host-sb_sid';
 const SESSION_DAYS = 60;
 const TOKEN_MINUTES = 15;
 

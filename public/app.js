@@ -1,4 +1,4 @@
-/* SolarHisaab front end. Bills are parsed in the browser (engine.js); signed-in users' bills are saved to the server. */
+/* Solar Bill front end. Bills are parsed in the browser (engine.js); signed-in users' bills are saved to the server. */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmtN = (v, d = 0) => v == null || isNaN(v) ? '—' : Number(v).toLocaleString('en-PK', { minimumFractionDigits: d, maximumFractionDigits: d });
@@ -41,7 +41,7 @@ async function saveToServer(b) {
 }
 
 /* Bills added before signing in wait in this browser (IndexedDB) until the magic link brings the user back. */
-const PENDING_DB = 'solarhisaab-pending';
+const PENDING_DB = 'solarbill-pending';
 function idb() { return new Promise((res, rej) => { const q = indexedDB.open(PENDING_DB, 1); q.onupgradeneeded = () => q.result.createObjectStore('bills', { autoIncrement: true }); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
 async function stashPending(bills) {
   const db = await idb(); const tx = db.transaction('bills', 'readwrite'); const st = tx.objectStore('bills'); st.clear();

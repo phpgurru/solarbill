@@ -1,4 +1,4 @@
-/* SolarHisaab engine: bill parsing + analysis. Pure JS, no DOM.
+/* Solar Bill engine: bill parsing + analysis. Pure JS, no DOM.
    Shared by the browser (window.NM) and the Worker (globalThis.NM). */
 const NM = (() => {
   const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];

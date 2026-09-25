@@ -1,4 +1,4 @@
--- SolarHisaab schema
+-- Solar Bill schema
 -- Users sign in by email magic link. Meters (consumer IDs) belong to a user.
 -- Each bill is one PDF in R2 plus its parsed data here.
 

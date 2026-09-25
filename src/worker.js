@@ -1,4 +1,4 @@
-// SolarHisaab Worker: API + auth routes. Everything else is served from /public as static assets.
+// Solar Bill Worker: API + auth routes. Everything else is served from /public as static assets.
 import { json, HttpError } from './util.js';
 import { requestLink, verifyPage, verifyToken, currentUser, logout, unsubscribe } from './auth.js';
 import { listBills, uploadBill, getPdf, deleteBill, updateMeter, deleteMeter, me, updateMe, deleteAccount, exportData, adminStats } from './api.js';

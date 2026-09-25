@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "solarhisaab",
+  "name": "solarbill",
   "main": "src/worker.js",
   "compatibility_date": "2025-09-01",
   "compatibility_flags": ["nodejs_compat"],
@@ -18,7 +18,7 @@
   "d1_databases": [
     {
       "binding": "DB",
-      "database_name": "solarhisaab",
+      "database_name": "solarbill",
       "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
       "migrations_dir": "migrations"
     }
@@ -26,16 +26,16 @@
 
   // The original bill PDFs
   "r2_buckets": [
-    { "binding": "BILLS", "bucket_name": "solarhisaab-bills" }
+    { "binding": "BILLS", "bucket_name": "solarbill-pdfs" }
   ],
 
   // Daily check for "your new bill is out" reminder emails (06:00 UTC = 11:00 PKT)
   "triggers": { "crons": ["0 6 * * *"] },
 
   "vars": {
-    "APP_URL": "https://solarhisaab.pk",
-    "APP_NAME": "SolarHisaab",
-    "EMAIL_FROM": "SolarHisaab <hello@solarhisaab.pk>",
+    "APP_URL": "https://solarbill.pk",
+    "APP_NAME": "Solar Bill",
+    "EMAIL_FROM": "Solar Bill <hello@solarbill.pk>",
     "ADMIN_EMAILS": "you@example.com",
     "DEV_MODE": "0"
   },
@@ -44,8 +44,8 @@
 
   // After adding your domain to Cloudflare, uncomment to serve the app on it:
   // ,"routes": [
-  //   { "pattern": "solarhisaab.pk", "custom_domain": true },
-  //   { "pattern": "www.solarhisaab.pk", "custom_domain": true }
+  //   { "pattern": "solarbill.pk", "custom_domain": true },
+  //   { "pattern": "www.solarbill.pk", "custom_domain": true }
   // ]
 
   // Secrets (set with `npx wrangler secret put NAME`, never commit them):

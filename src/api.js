@@ -194,7 +194,7 @@ export async function exportData(env, user, origin) {
     };
   });
   const body = JSON.stringify({ exportedAt: new Date().toISOString(), account: { email: user.email, createdAt: new Date(user.created_at * 1000).toISOString() }, meters, bills }, null, 2);
-  return new Response(body, { headers: { 'content-type': 'application/json', 'content-disposition': `attachment; filename="solarhisaab-export-${new Date().toISOString().slice(0, 10)}.json"`, 'cache-control': 'no-store' } });
+  return new Response(body, { headers: { 'content-type': 'application/json', 'content-disposition': `attachment; filename="solarbill-export-${new Date().toISOString().slice(0, 10)}.json"`, 'cache-control': 'no-store' } });
 }
 
 /* ---- admin ---- */

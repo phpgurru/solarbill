@@ -30,7 +30,7 @@ function bars(rows, key, val, color, fmtLabel) {
   const kpi = (v, l, s) => `<div class="kpi"><span class="eyebrow">${l}</span><span class="v">${v}</span>${s ? `<span class="s">${s}</span>` : ''}</div>`;
   const ml = k => { const [y, m] = k.split('-'); return `${MON[+m - 1]} ’${y.slice(2)}`; };
   $('#root').innerHTML = `
-    <div class="page-head"><div><div class="eyebrow">SolarHisaab</div><h1>Admin</h1></div><span class="ink2">Updated ${new Date().toLocaleString()}</span></div>
+    <div class="page-head"><div><div class="eyebrow">Solar Bill</div><h1>Admin</h1></div><span class="ink2">Updated ${new Date().toLocaleString()}</span></div>
     <div class="kpis">
       ${kpi(fmt(t.users), 'Users', `+${fmt(t.users7)} this week · +${fmt(t.users30)} in 30 days`)}
       ${kpi(fmt(t.active30), 'Active 30 days', `${t.users ? Math.round(t.active30 / t.users * 100) : 0}% of users`)}

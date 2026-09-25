@@ -1,8 +1,8 @@
-# SolarHisaab
+# Solar Bill
 
 Understand your net-metering electricity bill, every month.
 
-Drop a LESCO (or other PITC DISCO) web-bill PDF. SolarHisaab reads both QR codes and the printed figures, then shows:
+Drop a LESCO (or other PITC DISCO) web-bill PDF. Solar Bill reads both QR codes and the printed figures, then shows:
 
 - an energy-flow picture of what you took from and sent back to the grid
 - daytime (off-peak) vs evening (peak) units and what each costs
@@ -22,7 +22,7 @@ Guests can try it without an account. Signed-in users (email magic link) get the
 | Web app (HTML/CSS/JS) | Workers static assets | `public/` |
 | API, sign-in, cron | Worker | `src/` |
 | Accounts, meters, parsed bill data | D1 (SQLite) | `migrations/` |
-| Original bill PDFs | R2 | bucket `solarhisaab-bills` |
+| Original bill PDFs | R2 | bucket `solarbill-pdfs` |
 | Sign-in and reminder emails | Resend (HTTP API) | `src/email.js` |
 
 **Parsing happens in the browser.** `public/engine.js` reads the PDF text and QR codes client-side. The browser uploads the PDF plus the raw material it read (`text`, `qrs`); the Worker **re-runs the same engine** on that material, so stored figures always come from one code path. The same `engine.js` file is imported by the Worker (`src/api.js`).
@@ -68,8 +68,8 @@ You need a Cloudflare account, Node 20+, and a Resend account.
 npm install
 npx wrangler login
 
-npx wrangler d1 create solarhisaab           # copy the database_id it prints
-npx wrangler r2 bucket create solarhisaab-bills
+npx wrangler d1 create solarbill           # copy the database_id it prints
+npx wrangler r2 bucket create solarbill-pdfs
 ```
 
 Edit `wrangler.jsonc`:
@@ -100,9 +100,8 @@ Open your domain, add a bill, sign in, and check that the email arrives.
 
 ### 5. GitHub auto-deploy
 
-1. Create an empty GitHub repo and push this project:
+1. Push this project to GitHub (the remote `https://github.com/phpgurru/solarbill.git` is already set in `/var/www/solarbill`):
    ```bash
-   git remote add origin git@github.com:<you>/solarhisaab.git
    git push -u origin main
    ```
 2. In Cloudflare, **My Profile → API Tokens → Create Token** using the **Edit Cloudflare Workers** template, and add **Account → D1 → Edit** so migrations can run.
@@ -126,7 +125,7 @@ npm run dev                      # http://localhost:8787
 With `DEV_MODE=1` and no `RESEND_API_KEY`, the sign-in dialog shows the magic link on screen instead of emailing it. Use `http://localhost:8787`, not `127.0.0.1`, so the secure session cookie is accepted. In dev mode you can trigger reminders by hand:
 
 ```bash
-curl -X POST -H "Origin: http://localhost:8787" -b "__Host-sh_sid=<cookie>" \
+curl -X POST -H "Origin: http://localhost:8787" -b "__Host-sb_sid=<cookie>" \
   "http://localhost:8787/api/admin/run-reminders?at=2026-10-22T06:00:00Z"
 ```
 

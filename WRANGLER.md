@@ -1,6 +1,6 @@
-# Wrangler commands for SolarHisaab
+# Wrangler commands for Solar Bill
 
-Every Cloudflare command you need to set up, run, deploy and maintain SolarHisaab, in the order you'll use them.
+Every Cloudflare command you need to set up, run, deploy and maintain Solar Bill, in the order you'll use them.
 
 - Run all commands from the project folder: `cd /var/www/solarbill`
 - The Wrangler version is pinned in `package.json` (v4), so use `npx wrangler …` and not a global install.
@@ -8,9 +8,9 @@ Every Cloudflare command you need to set up, run, deploy and maintain SolarHisaa
 
 | What | Name |
 |---|---|
-| Worker | `solarhisaab` |
-| D1 database | `solarhisaab` |
-| R2 bucket | `solarhisaab-bills` |
+| Worker | `solarbill` |
+| D1 database | `solarbill` |
+| R2 bucket | `solarbill-pdfs` |
 
 > **Wrangler v4 defaults to local.** `d1 execute` and `r2 object` act on your *local* copy unless you add `--remote`. Every production command below includes `--remote` explicitly.
 
@@ -25,13 +25,13 @@ cd /var/www/solarbill
 npm install
 npx wrangler login
 
-npx wrangler d1 create solarhisaab                 # paste the database_id into wrangler.jsonc
-npx wrangler r2 bucket create solarhisaab-bills
+npx wrangler d1 create solarbill                 # paste the database_id into wrangler.jsonc
+npx wrangler r2 bucket create solarbill-pdfs
 
 npx wrangler secret put RESEND_API_KEY
 openssl rand -base64 48 | npx wrangler secret put SESSION_SECRET
 
-npx wrangler d1 migrations apply solarhisaab --remote
+npx wrangler d1 migrations apply solarbill --remote
 npx wrangler deploy
 ```
 
@@ -58,15 +58,15 @@ CLOUDFLARE_ACCOUNT_ID=<account-id> npx wrangler deploy
 ## 2. Create the database and bucket (once)
 
 ```bash
-npx wrangler d1 create solarhisaab
-npx wrangler r2 bucket create solarhisaab-bills
+npx wrangler d1 create solarbill
+npx wrangler r2 bucket create solarbill-pdfs
 ```
 
 `d1 create` prints a `database_id`. Paste it into `wrangler.jsonc`:
 
 ```jsonc
 "d1_databases": [
-  { "binding": "DB", "database_name": "solarhisaab", "database_id": "PASTE-IT-HERE", "migrations_dir": "migrations" }
+  { "binding": "DB", "database_name": "solarbill", "database_id": "PASTE-IT-HERE", "migrations_dir": "migrations" }
 ]
 ```
 
@@ -74,14 +74,14 @@ To check what exists:
 
 ```bash
 npx wrangler d1 list
-npx wrangler d1 info solarhisaab
+npx wrangler d1 info solarbill
 npx wrangler r2 bucket list
 ```
 
 Optional: pin the R2 bucket to the Asia-Pacific location hint (only when creating it):
 
 ```bash
-npx wrangler r2 bucket create solarhisaab-bills --location apac
+npx wrangler r2 bucket create solarbill-pdfs --location apac
 ```
 
 ---
@@ -93,8 +93,8 @@ These are plain variables committed with the code. Edit them before the first de
 | Variable | Set it to |
 |---|---|
 | `APP_URL` | `https://yourdomain.pk` |
-| `APP_NAME` | `SolarHisaab` or your brand |
-| `EMAIL_FROM` | `SolarHisaab <hello@yourdomain.pk>`, which must be on a domain verified in Resend |
+| `APP_NAME` | `Solar Bill` or your brand |
+| `EMAIL_FROM` | `Solar Bill <hello@yourdomain.pk>`, which must be on a domain verified in Resend |
 | `ADMIN_EMAILS` | your email; comma-separate several |
 | `DEV_MODE` | keep `"0"` in production |
 
@@ -138,12 +138,12 @@ Migrations live in `migrations/` and run in filename order. D1 records which one
 
 ```bash
 # See which migrations are pending
-npx wrangler d1 migrations list solarhisaab --local
-npx wrangler d1 migrations list solarhisaab --remote
+npx wrangler d1 migrations list solarbill --local
+npx wrangler d1 migrations list solarbill --remote
 
 # Apply them
-npx wrangler d1 migrations apply solarhisaab --local      # your machine
-npx wrangler d1 migrations apply solarhisaab --remote     # production
+npx wrangler d1 migrations apply solarbill --local      # your machine
+npx wrangler d1 migrations apply solarbill --remote     # production
 ```
 
 The same commands are available as npm scripts:
@@ -156,7 +156,7 @@ npm run db:migrate:remote
 To change the schema later, create a new migration instead of editing `0001_init.sql`:
 
 ```bash
-npx wrangler d1 migrations create solarhisaab add_meter_notes
+npx wrangler d1 migrations create solarbill add_meter_notes
 # edit migrations/0002_add_meter_notes.sql, then apply --local, test, and apply --remote
 ```
 
@@ -225,7 +225,7 @@ npx wrangler tail --method POST           # e.g. uploads and sign-ins
 npx wrangler tail --search "reminders:"   # the daily cron summary line
 ```
 
-Logs are also kept in the dashboard (**Workers → solarhisaab → Logs**), because `observability` is enabled in `wrangler.jsonc`.
+Logs are also kept in the dashboard (**Workers → solarbill → Logs**), because `observability` is enabled in `wrangler.jsonc`.
 
 ---
 
@@ -234,8 +234,8 @@ Logs are also kept in the dashboard (**Workers → solarhisaab → Logs**), beca
 Run SQL against production:
 
 ```bash
-npx wrangler d1 execute solarhisaab --remote --command "SELECT COUNT(*) AS users FROM users"
-npx wrangler d1 execute solarhisaab --remote --file ./query.sql
+npx wrangler d1 execute solarbill --remote --command "SELECT COUNT(*) AS users FROM users"
+npx wrangler d1 execute solarbill --remote --file ./query.sql
 ```
 
 Swap `--remote` for `--local` to query your dev copy.
@@ -244,35 +244,35 @@ Swap `--remote` for `--local` to query your dev copy.
 
 ```bash
 # Users, meters, bills
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "SELECT (SELECT COUNT(*) FROM users) users, (SELECT COUNT(*) FROM meters) meters, (SELECT COUNT(*) FROM bills) bills"
 
 # Bills uploaded per bill month
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "SELECT month, COUNT(*) n FROM bills GROUP BY month ORDER BY month DESC LIMIT 12"
 
 # Meters per DISCO
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "SELECT COALESCE(disco,'Unknown') disco, COUNT(*) meters FROM meters GROUP BY disco ORDER BY meters DESC"
 
 # Look up one user and their meters (support requests)
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "SELECT u.id, u.email, u.reminders, m.consumer_id, m.label FROM users u LEFT JOIN meters m ON m.user_id = u.id WHERE u.email = 'someone@example.com'"
 
 # Sign a user out everywhere
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "DELETE FROM sessions WHERE user_id = (SELECT id FROM users WHERE email = 'someone@example.com')"
 
 # Turn off reminders for a user
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "UPDATE users SET reminders = 0 WHERE email = 'someone@example.com'"
 
 # Who was reminded this month
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "SELECT COUNT(*) FROM reminder_log WHERE month = strftime('%Y-%m','now')"
 
 # Housekeeping: old sign-in tokens and expired sessions (the app also does this on each sign-in)
-npx wrangler d1 execute solarhisaab --remote --command \
+npx wrangler d1 execute solarbill --remote --command \
   "DELETE FROM login_tokens WHERE created_at < unixepoch() - 86400; DELETE FROM sessions WHERE expires_at < unixepoch();"
 ```
 
@@ -282,15 +282,15 @@ Don't delete users with SQL alone. That leaves their PDFs in R2. Use **My accoun
 
 ```bash
 # Full SQL dump to a file
-npx wrangler d1 export solarhisaab --remote --output backups/solarhisaab-$(date +%F).sql
+npx wrangler d1 export solarbill --remote --output backups/solarbill-$(date +%F).sql
 
 # Schema only / data only
-npx wrangler d1 export solarhisaab --remote --no-data --output schema.sql
-npx wrangler d1 export solarhisaab --remote --no-schema --output data.sql
+npx wrangler d1 export solarbill --remote --no-data --output schema.sql
+npx wrangler d1 export solarbill --remote --no-schema --output data.sql
 
 # Time Travel: D1 keeps point-in-time history (30 days on paid plans, 7 on free)
-npx wrangler d1 time-travel info solarhisaab
-npx wrangler d1 time-travel restore solarhisaab --timestamp "2026-10-01T10:00:00+05:00"
+npx wrangler d1 time-travel info solarbill
+npx wrangler d1 time-travel restore solarbill --timestamp "2026-10-01T10:00:00+05:00"
 ```
 
 A restore overwrites the current database. Take an `export` first.
@@ -298,8 +298,8 @@ A restore overwrites the current database. Take an `export` first.
 To copy production data into your local dev database:
 
 ```bash
-npx wrangler d1 export solarhisaab --remote --output prod.sql
-rm -rf .wrangler/state && npx wrangler d1 execute solarhisaab --local --file prod.sql
+npx wrangler d1 export solarbill --remote --output prod.sql
+rm -rf .wrangler/state && npx wrangler d1 execute solarbill --local --file prod.sql
 ```
 
 ---
@@ -310,19 +310,19 @@ PDFs are stored at `u/<userId>/<consumerId>/<YYYY-MM>.pdf`. Find a user's ID wit
 
 ```bash
 # Download one PDF
-npx wrangler r2 object get "solarhisaab-bills/u/<userId>/<consumerId>/2026-09.pdf" --remote --file bill.pdf
+npx wrangler r2 object get "solarbill-pdfs/u/<userId>/<consumerId>/2026-09.pdf" --remote --file bill.pdf
 
 # Upload / replace one (rarely needed; the app does this)
-npx wrangler r2 object put "solarhisaab-bills/u/<userId>/<consumerId>/2026-09.pdf" --remote --file bill.pdf --content-type application/pdf
+npx wrangler r2 object put "solarbill-pdfs/u/<userId>/<consumerId>/2026-09.pdf" --remote --file bill.pdf --content-type application/pdf
 
 # Delete one
-npx wrangler r2 object delete "solarhisaab-bills/u/<userId>/<consumerId>/2026-09.pdf" --remote
+npx wrangler r2 object delete "solarbill-pdfs/u/<userId>/<consumerId>/2026-09.pdf" --remote
 
 # Bucket details
-npx wrangler r2 bucket info solarhisaab-bills
+npx wrangler r2 bucket info solarbill-pdfs
 ```
 
-To browse or list objects, use the dashboard: **R2 → solarhisaab-bills → Objects**.
+To browse or list objects, use the dashboard: **R2 → solarbill-pdfs → Objects**.
 
 ---
 
@@ -343,7 +343,7 @@ curl "http://localhost:8787/__scheduled?cron=0+6+*+*+*"
 Or simulate a specific date through the dev-only endpoint (works only with `DEV_MODE=1`, while signed in as an admin):
 
 ```bash
-curl -X POST -H "Origin: http://localhost:8787" -b "__Host-sh_sid=<your-session-cookie>" \
+curl -X POST -H "Origin: http://localhost:8787" -b "__Host-sb_sid=<your-session-cookie>" \
   "http://localhost:8787/api/admin/run-reminders?at=2026-10-22T06:00:00Z"
 ```
 
@@ -353,7 +353,7 @@ In production, check what the cron did:
 npx wrangler tail --search "reminders:"
 ```
 
-The dashboard also shows past runs under **Workers → solarhisaab → Settings → Trigger events**.
+The dashboard also shows past runs under **Workers → solarbill → Settings → Trigger events**.
 
 To pause reminders, remove the cron from `wrangler.jsonc` (`"crons": []`) and deploy.
 
@@ -380,7 +380,7 @@ After that, pushing to `main` does **check → migrate → deploy**. Pull reques
 |---|---|
 | `Authentication error` / `code: 10000` | `npx wrangler login` again; in CI, check the token has Workers, D1 and R2 edit permissions |
 | `Couldn't find a D1 DB with the name or binding` | `database_id` in `wrangler.jsonc` is still the placeholder; paste the ID from `npx wrangler d1 list` |
-| `no such table: users` | Migrations not applied: `npx wrangler d1 migrations apply solarhisaab --remote` |
+| `no such table: users` | Migrations not applied: `npx wrangler d1 migrations apply solarbill --remote` |
 | Sign-in email never arrives | `npx wrangler secret list` should show `RESEND_API_KEY`; the domain in `EMAIL_FROM` must be verified in Resend; watch `npx wrangler tail --status error` |
 | `SESSION_SECRET is not set` in logs | `openssl rand -base64 48 \| npx wrangler secret put SESSION_SECRET` |
 | Signed in locally but still logged out | Use `http://localhost:8787`, not `127.0.0.1` |
