@@ -25,7 +25,7 @@ function bars(rows, key, val, color, fmtLabel) {
 
 (async () => {
   const r = await fetch('/api/admin/stats', { credentials: 'same-origin' });
-  if (!r.ok) { $('#root').innerHTML = `<div class="card"><h2>${r.status === 401 ? 'Please sign in' : 'Admins only'}</h2><p class="lede">${r.status === 401 ? 'Sign in with an admin email to see this page.' : 'Your email isn’t on the admin list (ADMIN_EMAILS).'}</p><div class="body"><a class="btn" href="/?signin=1">Sign in</a></div></div>`; return; }
+  if (!r.ok) { $('#root').innerHTML = `<div class="card"><h2>${r.status === 401 ? 'Please sign in' : 'Admins only'}</h2><p class="lede">${r.status === 401 ? 'Sign in with a Google account listed in ADMIN_EMAILS to see this page.' : 'Your email isn’t on the admin list (ADMIN_EMAILS).'}</p><div class="body"><a class="btn" href="/app?signin=1">Sign in</a></div></div>`; return; }
   const d = await r.json(), t = d.totals;
   const kpi = (v, l, s) => `<div class="kpi"><span class="eyebrow">${l}</span><span class="v">${v}</span>${s ? `<span class="s">${s}</span>` : ''}</div>`;
   const ml = k => { const [y, m] = k.split('-'); return `${MON[+m - 1]} ’${y.slice(2)}`; };

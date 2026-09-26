@@ -18,7 +18,7 @@ let me, data;
 async function load() {
   me = await api('/api/me');
   if (!me.user) {
-    $('#root').innerHTML = `<div class="card"><h2>You’re not signed in</h2><p class="lede">Sign in with your email to see your saved bills.</p><div class="body"><a class="btn primary big" href="/?signin=1">Sign in</a></div></div>`;
+    $('#root').innerHTML = `<div class="card"><h2>You’re not signed in</h2><p class="lede">Sign in with Google to see your saved bills.</p><div class="body"><a class="btn primary big" href="/app?signin=1">Sign in</a></div></div>`;
     return;
   }
   data = await api('/api/bills');
@@ -55,7 +55,7 @@ function render() {
           <button class="btn sm danger" type="button" data-delbill="${b.id}" data-label="${mlabel(b.month)}">Delete</button></div></div>`).join('') : '<p class="ink2">No bills for this meter yet.</p>'}
       </div>
       <div class="row" style="margin-top:12px"><button class="btn sm danger" type="button" data-delmeter="${m.id}" data-label="${esc(m.label || m.consumerId)}">Remove this meter and its ${bills.length} bill${bills.length === 1 ? '' : 's'}</button></div>
-    </section>`).join('') : `<section class="card"><h2>No bills yet</h2><p class="lede">Add your first bill PDF on the main page. It’s filed under its consumer ID automatically.</p><div class="body"><a class="btn primary" href="/">Add a bill</a></div></section>`}
+    </section>`).join('') : `<section class="card"><h2>No bills yet</h2><p class="lede">Add your first bill PDF on the main page. It’s filed under its consumer ID automatically.</p><div class="body"><a class="btn primary" href="/app">Add a bill</a></div></section>`}
 
     <section class="card"><h2>Your data</h2>
       <p class="lede">${me.billCount} bill${me.billCount === 1 ? '' : 's'} saved${me.storageBytes ? `, ${size(me.storageBytes)} of PDFs` : ''}. Download everything as a JSON file with the figures, analysis and links to each PDF.</p>

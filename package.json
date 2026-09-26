@@ -8,7 +8,7 @@
     "deploy": "wrangler deploy",
     "db:migrate:local": "wrangler d1 migrations apply solarbill --local",
     "db:migrate:remote": "wrangler d1 migrations apply solarbill --remote",
-    "check": "node --check public/app.js && node --check public/engine.js && node --check public/account.js && node --check public/admin.js && wrangler deploy --dry-run --outdir .wrangler/dry"
+    "check": "node --check public/app.js && node --check public/engine.js && node --check public/account.js && node --check public/admin.js && node --check public/home.js && wrangler deploy --dry-run --outdir .wrangler/dry"
   },
   "devDependencies": {
     "wrangler": "^4.140.0"

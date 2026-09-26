@@ -66,8 +66,16 @@ export function sanitize(v, depth = 0) {
 }
 
 // Minimal HTML page used for the sign-in / unsubscribe confirmation steps.
+// Server-rendered pages (sign-in, unsubscribe) share the site's header and footer.
+const BOLT = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>';
 export function page(title, body, status = 200) {
   return new Response(`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${escapeHtml(title)}</title><link rel="stylesheet" href="/app.css"></head>
-<body class="plain"><main class="plain-card">${body}</main></body></html>`, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-frame-options': 'DENY', 'referrer-policy': 'same-origin', 'content-security-policy': "default-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'" } });
+<title>${escapeHtml(title)}</title><meta name="robots" content="noindex"><link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/app.css"></head>
+<body class="tinted plain">
+<header class="nav"><div class="wrap"><a class="brand" href="/" aria-label="Solar Bill home">${BOLT}Solar Bill</a><a class="pill sm" href="/app">Check a bill</a></div></header>
+<main class="page"><div class="plain-card">${body}</div></main>
+<footer class="foot"><div class="wrap"><nav aria-label="Footer"><a href="/app">Check a bill</a><a href="/account">My account</a><a href="/privacy">Privacy</a></nav><p>© 2026 Solar Bill</p></div></footer>
+</body></html>`, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-frame-options': 'DENY', 'referrer-policy': 'same-origin', 'content-security-policy': "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; form-action 'self'; frame-ancestors 'none'" } });
 }

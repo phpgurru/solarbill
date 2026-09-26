@@ -28,6 +28,7 @@ npx wrangler login
 npx wrangler d1 create solarbill                 # paste the database_id into wrangler.jsonc
 npx wrangler r2 bucket create solarbill-pdfs
 
+npx wrangler secret put GOOGLE_CLIENT_SECRET
 npx wrangler secret put RESEND_API_KEY
 openssl rand -base64 48 | npx wrangler secret put SESSION_SECRET
 
@@ -66,7 +67,7 @@ npx wrangler r2 bucket create solarbill-pdfs
 
 ```jsonc
 "d1_databases": [
-  { "binding": "DB", "database_name": "solarbill", "database_id": "PASTE-IT-HERE", "migrations_dir": "migrations" }
+  { "binding": "DB", "database_name": "solarbill", "database_id": "7f5f2609-d051-4fec-93f1-12084b778e36", "migrations_dir": "migrations" }
 ]
 ```
 
@@ -95,7 +96,8 @@ These are plain variables committed with the code. Edit them before the first de
 | `APP_URL` | `https://yourdomain.pk` |
 | `APP_NAME` | `Solar Bill` or your brand |
 | `EMAIL_FROM` | `Solar Bill <hello@yourdomain.pk>`, which must be on a domain verified in Resend |
-| `ADMIN_EMAILS` | your email; comma-separate several |
+| `GOOGLE_CLIENT_ID` | the OAuth client ID from Google Cloud Console (see README, step 3) |
+| `ADMIN_EMAILS` | the Google account email(s) that can open /admin; comma-separate several |
 | `DEV_MODE` | keep `"0"` in production |
 
 To serve the app on your domain, uncomment the `routes` block. The domain must already be in your Cloudflare account.
@@ -114,7 +116,8 @@ Cloudflare creates the DNS records and certificate on the next `npx wrangler dep
 ## 4. Secrets (never commit these)
 
 ```bash
-npx wrangler secret put RESEND_API_KEY        # paste the key from resend.com when prompted
+npx wrangler secret put GOOGLE_CLIENT_SECRET  # paste the OAuth client secret from Google Cloud Console
+npx wrangler secret put RESEND_API_KEY        # paste the key from resend.com (reminder emails)
 openssl rand -base64 48 | npx wrangler secret put SESSION_SECRET
 
 npx wrangler secret list                      # shows names only, never values
@@ -181,7 +184,7 @@ npx wrangler dev --test-scheduled       # lets you fire the cron by hand (see se
 ```
 
 - **Local data** (D1 rows and R2 PDFs) lives in `.wrangler/state/`. Delete that folder to start fresh, then re-run `npm run db:migrate:local`.
-- **Sign-in:** with `DEV_MODE=1` and no `RESEND_API_KEY`, the sign-in dialog shows the magic link on screen. Open the site at `http://localhost:8787`, not `127.0.0.1`, so the secure cookie is accepted.
+- **Sign-in:** with `DEV_MODE=1` and no `GOOGLE_CLIENT_ID` in `.dev.vars`, “Continue with Google” opens a dev page where you type any email. To test real Google sign-in locally, add `http://localhost:8787/auth/google/callback` as a redirect URI and put both Google keys in `.dev.vars`. Open the site at `http://localhost:8787`, not `127.0.0.1`, so the secure cookie is accepted.
 
 Avoid `npx wrangler dev --remote`. It runs your local code against the **production** database and bucket.
 
@@ -271,9 +274,9 @@ npx wrangler d1 execute solarbill --remote --command \
 npx wrangler d1 execute solarbill --remote --command \
   "SELECT COUNT(*) FROM reminder_log WHERE month = strftime('%Y-%m','now')"
 
-# Housekeeping: old sign-in tokens and expired sessions (the app also does this on each sign-in)
+# Housekeeping: expired sessions (the app also does this on each sign-in)
 npx wrangler d1 execute solarbill --remote --command \
-  "DELETE FROM login_tokens WHERE created_at < unixepoch() - 86400; DELETE FROM sessions WHERE expires_at < unixepoch();"
+  "DELETE FROM sessions WHERE expires_at < unixepoch();"
 ```
 
 Don't delete users with SQL alone. That leaves their PDFs in R2. Use **My account → Delete everything**, which removes both.
@@ -381,7 +384,8 @@ After that, pushing to `main` does **check → migrate → deploy**. Pull reques
 | `Authentication error` / `code: 10000` | `npx wrangler login` again; in CI, check the token has Workers, D1 and R2 edit permissions |
 | `Couldn't find a D1 DB with the name or binding` | `database_id` in `wrangler.jsonc` is still the placeholder; paste the ID from `npx wrangler d1 list` |
 | `no such table: users` | Migrations not applied: `npx wrangler d1 migrations apply solarbill --remote` |
-| Sign-in email never arrives | `npx wrangler secret list` should show `RESEND_API_KEY`; the domain in `EMAIL_FROM` must be verified in Resend; watch `npx wrangler tail --status error` |
+| Google sign-in returns to the app with an error | `npx wrangler tail` shows `Google sign-in failed: <reason>`. `redirect_uri_mismatch` means the callback URL isn’t listed in Google Cloud Console; `token 401` means `GOOGLE_CLIENT_SECRET` is wrong or missing |
+| Reminder emails never arrive | `npx wrangler secret list` should show `RESEND_API_KEY`; the domain in `EMAIL_FROM` must be verified in Resend; watch `npx wrangler tail --status error` |
 | `SESSION_SECRET is not set` in logs | `openssl rand -base64 48 \| npx wrangler secret put SESSION_SECRET` |
 | Signed in locally but still logged out | Use `http://localhost:8787`, not `127.0.0.1` |
 | Custom domain shows an error | The domain must be an active zone in the same Cloudflare account; wait for nameserver change at PKNIC |

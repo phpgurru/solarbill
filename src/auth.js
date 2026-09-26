@@ -1,82 +1,96 @@
-// Magic-link sign-in and cookie sessions.
-import { json, fail, now, randomToken, newId, sha256Hex, parseCookies, isEmail, escapeHtml, page, hmac, safeEqual } from './util.js';
-import { sendEmail, loginEmail } from './email.js';
+// Google sign-in (OAuth 2.0 authorization code + PKCE) and cookie sessions.
+import { json, now, randomToken, newId, sha256Hex, parseCookies, isEmail, escapeHtml, page, hmac, safeEqual } from './util.js';
 
 const COOKIE = '__Host-sb_sid';
+const OAUTH_COOKIE = '__Host-sb_oauth';
 const SESSION_DAYS = 60;
-const TOKEN_MINUTES = 15;
+const OAUTH_MINUTES = 10;
 
-const clientIp = req => req.headers.get('cf-connecting-ip') || 'unknown';
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const redirectUri = url => `${url.origin}/auth/google/callback`;
+const redirect = (location, cookies = []) => {
+  const h = new Headers({ location, 'cache-control': 'no-store' });
+  for (const c of cookies) h.append('set-cookie', c);
+  return new Response(null, { status: 302, headers: h });
+};
+const oauthCookie = (v, age) => `${OAUTH_COOKIE}=${v}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`;
+const failed = reason => { console.warn('Google sign-in failed:', reason); return redirect('/app?signin_error=1', [oauthCookie('', 0)]); };
 
-export async function requestLink(req, env) {
-  const body = await req.json().catch(() => ({}));
-  const email = String(body.email || '').trim().toLowerCase();
-  if (!isEmail(email)) fail(400, 'Enter a valid email address.');
-  const ip = clientIp(req), t = now();
-
-  // Rate limits: 5 links per email and 20 per IP address per hour
-  const hourAgo = t - 3600;
-  const byEmail = await env.DB.prepare('SELECT COUNT(*) AS n FROM login_tokens WHERE email = ? AND created_at > ?').bind(email, hourAgo).first('n');
-  const byIp = await env.DB.prepare('SELECT COUNT(*) AS n FROM login_tokens WHERE ip = ? AND created_at > ?').bind(ip, hourAgo).first('n');
-  if (byEmail >= 5 || byIp >= 20) fail(429, 'Too many sign-in emails. Please wait an hour and try again.');
-
-  const token = randomToken(32);
-  await env.DB.prepare('INSERT INTO login_tokens (token_hash, email, created_at, expires_at, ip) VALUES (?, ?, ?, ?, ?)')
-    .bind(await sha256Hex(token), email, t, t + TOKEN_MINUTES * 60, ip).run();
-
-  const origin = new URL(req.url).origin;
-  const link = `${origin}/auth/verify?token=${encodeURIComponent(token)}`;
-  const msg = loginEmail(env, link);
-  const r = await sendEmail(env, { to: email, ...msg });
-  // In local development without an email key, hand the link back so you can click it.
-  return json({ ok: true, ...(r && r.dev ? { devLink: link } : {}) });
-}
-
-// Step 1: the link from the email opens a confirmation page. A button POSTs the token.
-// (Email security scanners open links automatically; a GET must never use up the token.)
-export function verifyPage(url, env) {
-  const token = url.searchParams.get('token') || '';
-  return page(`Sign in · ${env.APP_NAME}`, `
-    <div class="plain-logo">⚡ ${escapeHtml(env.APP_NAME)}</div>
-    <h1>Sign in</h1><p>Continue to your bills on this device.</p>
-    <form method="post" action="/auth/verify"><input type="hidden" name="token" value="${escapeHtml(token)}">
-    <button class="btn primary big" type="submit">Continue</button></form>`);
-}
-
-// Step 2: validate the token, create the user if new, start a session.
-export async function verifyToken(req, env) {
-  const form = await req.formData();
-  const token = String(form.get('token') || '');
-  const hash = await sha256Hex(token), t = now();
-  const row = await env.DB.prepare('SELECT email, expires_at, used_at FROM login_tokens WHERE token_hash = ?').bind(hash).first();
-  if (!row || row.used_at || row.expires_at < t) {
-    return page(`Link expired · ${env.APP_NAME}`, `<div class="plain-logo">⚡ ${escapeHtml(env.APP_NAME)}</div>
-      <h1>This link has expired</h1><p>Sign-in links work once, for 15 minutes. Request a new one.</p><a class="btn primary big" href="/?signin=1">Get a new link</a>`, 400);
+// Step 1: send the browser to Google's account chooser.
+export async function googleStart(req, env, url) {
+  if (!env.GOOGLE_CLIENT_ID) {
+    if (env.DEV_MODE === '1') return devSignInPage(env);
+    throw new Error('GOOGLE_CLIENT_ID is not set');
   }
-  // Mark used first, conditionally, so the same token can't be replayed in parallel
-  const upd = await env.DB.prepare('UPDATE login_tokens SET used_at = ? WHERE token_hash = ? AND used_at IS NULL').bind(t, hash).run();
-  if (!upd.meta.changes) fail(400, 'Link already used.');
+  const state = randomToken(24), verifier = randomToken(48);
+  const challenge = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier)));
+  const q = new URLSearchParams({
+    client_id: env.GOOGLE_CLIENT_ID, redirect_uri: redirectUri(url), response_type: 'code',
+    scope: 'openid email', state, code_challenge: challenge, code_challenge_method: 'S256', prompt: 'select_account',
+  });
+  return redirect(`https://accounts.google.com/o/oauth2/v2/auth?${q}`, [oauthCookie(`${state}.${verifier}`, OAUTH_MINUTES * 60)]);
+}
 
-  let user = await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(row.email).first();
+// Step 2: Google sends the browser back with a code. Check state, swap the code for an ID token, start a session.
+export async function googleCallback(req, env, url) {
+  const [state, verifier] = (parseCookies(req)[OAUTH_COOKIE] || '').split('.');
+  const code = url.searchParams.get('code');
+  if (url.searchParams.get('error')) return failed(url.searchParams.get('error'));
+  if (!state || !verifier || !code || !safeEqual(url.searchParams.get('state') || '', state)) return failed('state mismatch');
+
+  const r = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ code, client_id: env.GOOGLE_CLIENT_ID, client_secret: env.GOOGLE_CLIENT_SECRET, redirect_uri: redirectUri(url), grant_type: 'authorization_code', code_verifier: verifier }),
+  });
+  if (!r.ok) return failed(`token ${r.status}: ${await r.text()}`);
+  const { id_token } = await r.json();
+  // The ID token came straight from Google's token endpoint over TLS, so its claims can be trusted
+  // without re-checking the signature (OpenID Connect Core 3.1.3.7). The claims are still validated.
+  let c;
+  try { c = JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(id_token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')), ch => ch.charCodeAt(0)))); }
+  catch (e) { return failed('bad id_token'); }
+  if (!['https://accounts.google.com', 'accounts.google.com'].includes(c.iss) || c.aud !== env.GOOGLE_CLIENT_ID || !(c.exp > now())) return failed('bad claims');
+  if (!c.sub || !c.email_verified || !isEmail(c.email)) return failed('email not verified');
+
+  const sid = await startSession(req, env, String(c.email).toLowerCase(), String(c.sub));
+  return redirect('/app?welcome=1', [sessionCookie(sid), oauthCookie('', 0)]);
+}
+
+// Local development without Google keys: type any email to sign in.
+function devSignInPage(env) {
+  return page(`Sign in · ${env.APP_NAME}`, `
+    <h1>Dev sign-in</h1><p>GOOGLE_CLIENT_ID isn’t set, so DEV_MODE lets you sign in as any email.</p>
+    <form method="post" action="/auth/dev" style="flex-direction:column;gap:10px"><input name="email" type="email" required placeholder="you@example.com" style="padding:10px;border-radius:10px;border:1px solid var(--line-2)">
+    <button class="btn primary big" type="submit">Sign in</button></form>`);
+}
+export async function devSignIn(req, env) {
+  if (env.DEV_MODE !== '1' || env.GOOGLE_CLIENT_ID) return new Response('Not found', { status: 404 });
+  const email = String((await req.formData()).get('email') || '').trim().toLowerCase();
+  if (!isEmail(email)) return redirect('/auth/google');
+  return redirect('/app?welcome=1', [sessionCookie(await startSession(req, env, email, null))]);
+}
+
+// Find the user by Google account (then by email, for accounts made before Google sign-in), create if new.
+async function startSession(req, env, email, sub) {
+  const t = now();
+  let user = (sub && await env.DB.prepare('SELECT id FROM users WHERE google_sub = ?').bind(sub).first())
+    || await env.DB.prepare('SELECT id FROM users WHERE email = ?').bind(email).first();
   if (!user) {
     user = { id: newId() };
-    await env.DB.prepare('INSERT INTO users (id, email, created_at, last_login_at) VALUES (?, ?, ?, ?)').bind(user.id, row.email, t, t).run();
+    await env.DB.prepare('INSERT INTO users (id, email, google_sub, created_at, last_login_at) VALUES (?, ?, ?, ?, ?)').bind(user.id, email, sub, t, t).run();
   } else {
-    await env.DB.prepare('UPDATE users SET last_login_at = ? WHERE id = ?').bind(t, user.id).run();
+    await env.DB.prepare('UPDATE users SET google_sub = COALESCE(?, google_sub), last_login_at = ? WHERE id = ?').bind(sub, t, user.id).run();
   }
   const sid = randomToken(32);
-  await env.DB.prepare('INSERT INTO sessions (id_hash, user_id, created_at, expires_at, user_agent) VALUES (?, ?, ?, ?, ?)')
-    .bind(await sha256Hex(sid), user.id, t, t + SESSION_DAYS * 86400, (req.headers.get('user-agent') || '').slice(0, 200)).run();
-  // Housekeeping: old tokens and expired sessions
   await env.DB.batch([
-    env.DB.prepare('DELETE FROM login_tokens WHERE created_at < ?').bind(t - 86400),
+    env.DB.prepare('INSERT INTO sessions (id_hash, user_id, created_at, expires_at, user_agent) VALUES (?, ?, ?, ?, ?)')
+      .bind(await sha256Hex(sid), user.id, t, t + SESSION_DAYS * 86400, (req.headers.get('user-agent') || '').slice(0, 200)),
     env.DB.prepare('DELETE FROM sessions WHERE expires_at < ?').bind(t),
   ]);
-  return new Response(null, {
-    status: 303,
-    headers: { location: '/?welcome=1', 'set-cookie': `${COOKIE}=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}`, 'cache-control': 'no-store' },
-  });
+  return sid;
 }
+const sessionCookie = sid => `${COOKIE}=${sid}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${SESSION_DAYS * 86400}`;
 
 export async function currentUser(req, env) {
   const sid = parseCookies(req)[COOKIE];
@@ -109,9 +123,9 @@ export async function unsubscribe(req, env, url) {
   const ok = u && s && safeEqual(s, await hmac(secret(env), `unsub:${u}`));
   if (req.method === 'POST' && ok) {
     await env.DB.prepare('UPDATE users SET reminders = 0 WHERE id = ?').bind(u).run();
-    return page(`Unsubscribed · ${env.APP_NAME}`, `<div class="plain-logo">⚡ ${escapeHtml(env.APP_NAME)}</div><h1>Reminders stopped</h1><p>You won’t get monthly bill reminders any more. You can turn them back on from your account page.</p><a class="btn big" href="/">Open ${escapeHtml(env.APP_NAME)}</a>`);
+    return page(`Unsubscribed · ${env.APP_NAME}`, `<h1>Reminders stopped</h1><p>You won’t get monthly bill reminders any more. You can turn them back on from your account page.</p><a class="btn big" href="/app">Open ${escapeHtml(env.APP_NAME)}</a>`);
   }
   if (!ok) return page(`Link not valid · ${env.APP_NAME}`, `<h1>This link isn’t valid</h1><p>Turn reminders off from your account page instead.</p><a class="btn big" href="/account">My account</a>`, 400);
-  return page(`Stop reminders · ${env.APP_NAME}`, `<div class="plain-logo">⚡ ${escapeHtml(env.APP_NAME)}</div><h1>Stop monthly reminders?</h1><p>You’ll no longer get an email when your new bill is due.</p>
+  return page(`Stop reminders · ${env.APP_NAME}`, `<h1>Stop monthly reminders?</h1><p>You’ll no longer get an email when your new bill is due.</p>
     <form method="post"><button class="btn primary big" type="submit">Stop reminders</button></form>`);
 }

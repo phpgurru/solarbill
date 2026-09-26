@@ -1,6 +1,6 @@
 // Solar Bill Worker: API + auth routes. Everything else is served from /public as static assets.
 import { json, HttpError } from './util.js';
-import { requestLink, verifyPage, verifyToken, currentUser, logout, unsubscribe } from './auth.js';
+import { googleStart, googleCallback, devSignIn, currentUser, logout, unsubscribe } from './auth.js';
 import { listBills, uploadBill, getPdf, deleteBill, updateMeter, deleteMeter, me, updateMe, deleteAccount, exportData, adminStats } from './api.js';
 import { runReminders } from './cron.js';
 
@@ -17,9 +17,10 @@ async function handle(req, env) {
   }
 
   // ---- auth pages ----
-  if (p === '/auth/verify') return m === 'POST' ? verifyToken(req, env) : verifyPage(url, env);
+  if (p === '/auth/google' && m === 'GET') return googleStart(req, env, url);
+  if (p === '/auth/google/callback' && m === 'GET') return googleCallback(req, env, url);
+  if (p === '/auth/dev' && m === 'POST') return devSignIn(req, env);
   if (p === '/auth/unsubscribe') return unsubscribe(req, env, url);
-  if (p === '/api/auth/request' && m === 'POST') return requestLink(req, env);
   if (p === '/api/auth/logout' && m === 'POST') return logout(req, env);
 
   // ---- signed-in API ----

@@ -1,0 +1,8 @@
+# Solar Bill
+
+> Free web app that reads Pakistani net-metering electricity bills (LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO, HESCO) and explains them in plain words: import vs export units, peak vs off-peak cost, quarterly settlement, carried-forward credit, and solar savings. Bills are read inside the browser; signing in with Google saves them by consumer ID.
+
+- [Homepage](https://solarbill.pk/): what Solar Bill does, why a net exporter can still get a bill, bill terms glossary, 2026 NEPRA rule changes, FAQ
+- [Check a bill](https://solarbill.pk/app): the app; add a DISCO web-bill PDF
+- [Sample bill](https://solarbill.pk/app?sample=1): a worked LESCO example
+- [Privacy](https://solarbill.pk/privacy): what is stored and how to delete it

@@ -40,7 +40,7 @@ async function saveToServer(b) {
   return fromServer(r.bill);
 }
 
-/* Bills added before signing in wait in this browser (IndexedDB) until the magic link brings the user back. */
+/* Bills added before signing in wait in this browser (IndexedDB) until Google sign-in brings the user back. */
 const PENDING_DB = 'solarbill-pending';
 function idb() { return new Promise((res, rej) => { const q = indexedDB.open(PENDING_DB, 1); q.onupgradeneeded = () => q.result.createObjectStore('bills', { autoIncrement: true }); q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error); }); }
 async function stashPending(bills) {
@@ -158,34 +158,30 @@ async function addFromText(t) {
 
 /* ---------------- sign in ---------------- */
 const dlg = $('#signin');
-function openSignin() {
-  $('#si-form').hidden = false; $('#si-sent').hidden = true; $('#si-err').textContent = '';
+function openSignin(error) {
+  $('#si-err').textContent = error ? 'Google sign-in didn’t finish. Please try again.' : '';
   const n = state.bills.filter(b => b.source !== 'sample' && b._payload).length;
   $('#si-keep').hidden = !n; $('#si-keep').textContent = n ? `The ${n} bill${n > 1 ? 's' : ''} you added will be saved to your account when you sign in on this device.` : '';
-  dlg.showModal(); setTimeout(() => $('#si-email').focus(), 30);
+  dlg.showModal(); setTimeout(() => $('#si-go').focus(), 30);
 }
 $('#si-close').addEventListener('click', () => dlg.close());
 dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
-$('#si-form').addEventListener('submit', async e => {
+// Keep bills added as a guest in this browser while Google signs the user in, then continue.
+$('#si-go').addEventListener('click', async e => {
   e.preventDefault();
-  const email = $('#si-email').value.trim(), btn = $('#si-go');
-  btn.disabled = true; btn.textContent = 'Sending…'; $('#si-err').textContent = '';
-  try {
-    const guest = state.bills.filter(b => b.source !== 'sample' && b._payload);
-    if (guest.length) await stashPending(guest).catch(() => {});
-    const r = await api('/api/auth/request', { method: 'POST', body: JSON.stringify({ email }) });
-    $('#si-form').hidden = true; $('#si-sent').hidden = false; $('#si-to').textContent = email;
-    $('#si-dev').innerHTML = r.devLink ? `Dev mode: <a href="${esc(r.devLink)}">open the sign-in link</a>` : '';
-  } catch (err) { $('#si-err').textContent = err.message; }
-  btn.disabled = false; btn.textContent = 'Email me a sign-in link';
+  const a = e.currentTarget; a.setAttribute('aria-disabled', 'true'); a.lastChild.textContent = 'Opening Google…';
+  const guest = state.bills.filter(b => b.source !== 'sample' && b._payload);
+  if (guest.length) await stashPending(guest).catch(() => {});
+  location.href = a.href;
 });
 document.addEventListener('click', e => { if (e.target.closest('[data-signin]')) { e.preventDefault(); openSignin(); } });
 
+// The shared header's sign-in link becomes "My account" once signed in.
 function renderAccountBar() {
-  const box = $('#acct');
-  box.innerHTML = state.user
-    ? `<a class="btn" href="/account" title="${esc(state.user.email)}"><span class="avatar" aria-hidden="true">${esc(state.user.email[0].toUpperCase())}</span>My bills</a>${state.user.isAdmin ? '<a class="btn" href="/admin">Admin</a>' : ''}`
-    : `<button class="btn" type="button" data-signin>Sign in</button>`;
+  const a = $('#nav-signin');
+  if (state.user) { a.textContent = 'My account'; a.href = '/account'; a.title = state.user.email; a.removeAttribute('data-signin'); }
+  else { a.textContent = 'Sign in'; a.href = '/app?signin=1'; a.removeAttribute('title'); a.setAttribute('data-signin', ''); }
+  $('#nav-admin').hidden = !(state.user && state.user.isAdmin);
 }
 
 /* tooltip */
@@ -212,7 +208,7 @@ function renderChips() {
   const meterRow = keys.length > 1 ? `<div class="meters" role="group" aria-label="Meters">${keys.map(k => `<button type="button" class="mchip" aria-pressed="${k === state.meter}" data-meter="${esc(k)}">${esc(meterName(k))}</button>`).join('')}</div>` : '';
   const mb = meterBills();
   const canRemove = !state.user;
-  bar.innerHTML = meterRow + `<div class="chips-row">${mb.map(b => `<span class="chip" role="button" tabindex="0" aria-pressed="${b.id === state.sel}" data-id="${b.id}">${esc(NM.monthLabel(b.month))}${b.source === 'sample' ? ' <span class="tag">Sample</span>' : ''}${canRemove ? `<button class="x" type="button" aria-label="Remove ${esc(NM.monthLabel(b.month))}" data-rm="${b.id}">×</button>` : ''}</span>`).join('')}</div>`;
+  bar.innerHTML = meterRow + `<div class="chips-row">${mb.map(b => `<span class="chip" role="button" tabindex="0" aria-pressed="${b.id === state.sel}" data-id="${b.id}">${esc(NM.monthLabel(b.month))}${b.source === 'sample' ? ' <span class="tag">Sample</span>' : ''}${canRemove || b.source === 'sample' ? `<button class="x" type="button" aria-label="Remove ${esc(NM.monthLabel(b.month))}" data-rm="${b.id}">×</button>` : ''}</span>`).join('')}</div>`;
   bar.querySelectorAll('.mchip').forEach(c => c.addEventListener('click', () => { state.meter = c.dataset.meter; const mb2 = meterBills(); state.sel = mb2.length ? mb2[mb2.length - 1].id : null; render(); }));
   bar.querySelectorAll('.chip').forEach(c => {
     const pick = () => { state.sel = c.dataset.id; render(); };
@@ -228,13 +224,23 @@ function renderSave() {
   box.hidden = false;
   box.innerHTML = `<span class="save-ic" aria-hidden="true">${ICON.sun(26, '#fff')}</span>
     <div><b>${n ? `Keep ${n === 1 ? 'this bill' : `these ${n} bills`} and add one every month` : 'Track your solar every month'}</b>
-    <span>${n ? 'Sign in with your email to save them. Next month, add the new bill and watch your credit, exports and savings build up.' : 'Sign in with your email to save your bills, see month-by-month trends, and get a reminder when your new bill is out.'}</span></div>
+    <span>${n ? 'Sign in with Google to save them. Next month, add the new bill and watch your credit, exports and savings build up.' : 'Sign in with Google to save your bills, see month-by-month trends, and get a reminder when your new bill is out.'}</span></div>
     <button class="btn primary" type="button" data-signin>${n ? 'Save my bills' : 'Sign in'}</button>`;
 }
 
+/* The sample bill loads only when asked for (empty-state button or /app?sample=1). */
+async function loadSample() {
+  try {
+    const S = await (await fetch('/sample.json')).json();
+    const b = NM.buildBill(S.text, S.qrs, { source: 'sample', fileName: 'Sample' }); b.id = 'sample';
+    state.bills = state.bills.filter(x => x.id !== 'sample').concat(b); state.sel = b.id; state.meter = mkey(b);
+  } catch (e) { setStatus('The sample bill didn’t load. Please try again.', true); }
+}
+document.addEventListener('click', async e => { if (e.target.closest('[data-sample]')) { e.preventDefault(); await loadSample(); render(); } });
+
 function renderMain() {
   const m = $('#main'), b = cur();
-  if (!b) { m.innerHTML = `<div class="card"><h2>Add a bill to begin</h2><p class="lede">Tap “Add bill PDFs” and choose your net-metering web bill. LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO bills share the same layout.</p></div>`; return; }
+  if (!b) { m.innerHTML = `<div class="card"><h2>Add a bill to begin</h2><p class="lede">Tap “Add bill PDFs” and choose your net-metering web bill. LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO bills share the same layout.</p><div class="body row"><label class="btn primary big" for="file">Add bill PDFs</label><button class="btn big" type="button" data-sample>See a sample bill</button></div></div>`; return; }
   const A = NM.analyze(b, optsFor(b)), checks = NM.checks(b), tl = NM.timeline(meterBills());
   m.innerHTML = [hero(b, A), dayEvening(b, A, tl), moneyCard(b, A), savingsCard(b, A), takeaways(b, A, tl), trends(b, tl), experts(b, A, checks)].filter(Boolean).join('');
   bind(b, A); drawCharts(tl);
@@ -591,6 +597,7 @@ function drawCharts(tl) { lastTl = tl; drawNet(tl); drawBal(tl); drawIE(tl); dra
 let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawCharts(lastTl), 120); });
 
 (async function boot() {
+  const qs = new URLSearchParams(location.search);  // read once: signing in clears the query below
   if (!window.pdfjsLib || !window.jsQR) setStatus('The PDF reader didn’t load. Reload the page; pasting QR text (under “For experts”) still works.', true);
   try {
     const me = await api('/api/me');
@@ -606,15 +613,13 @@ let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() 
           try { const b = NM.buildBill(p.payload.text || {}, p.payload.qrs || [], { source: 'pdf', fileName: p.payload.fileName }); b._payload = p.payload; if (p.file) b._file = new File([p.file], p.fileName || 'bill.pdf', { type: 'application/pdf' }); await ingest(b); n++; } catch (e) { console.warn(e); }
         }
         if (n) setStatus(`Welcome! We saved the ${n} bill${n > 1 ? 's' : ''} you added before signing in.`);
-      } else if (new URLSearchParams(location.search).has('welcome')) setStatus(`Signed in as ${me.user.email}.`);
-      if (location.search) history.replaceState(null, '', '/');
+      } else if (qs.has('welcome')) setStatus(`Signed in as ${me.user.email}.`);
+      if (location.search) history.replaceState(null, '', '/app');
       const last = state.bills[state.bills.length - 1];
       if (last) { state.sel = last.id; state.meter = mkey(last); }
     }
   } catch (e) { console.warn('Account check failed', e); }
-  if (!state.bills.length && !state.user) {
-    try { const S = await (await fetch('/sample.json')).json(); const b = NM.buildBill(S.text, S.qrs, { source: 'sample', fileName: 'Sample' }); b.id = 'sample'; state.bills = [b]; state.sel = b.id; state.meter = mkey(b); } catch (e) {}
-  }
-  if (new URLSearchParams(location.search).has('signin') && !state.user) { history.replaceState(null, '', '/'); openSignin(); }
+  if (qs.has('sample')) { history.replaceState(null, '', '/app'); await loadSample(); }
+  if ((qs.has('signin') || qs.has('signin_error')) && !state.user) { history.replaceState(null, '', '/app'); openSignin(qs.has('signin_error')); }
   render();
 })();

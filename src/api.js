@@ -174,7 +174,6 @@ export async function deleteAccount(req, env, user) {
     env.DB.prepare('DELETE FROM meters WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM sessions WHERE user_id = ?').bind(user.id),
     env.DB.prepare('DELETE FROM reminder_log WHERE user_id = ?').bind(user.id),
-    env.DB.prepare('DELETE FROM login_tokens WHERE email = ?').bind(user.email),
     env.DB.prepare('DELETE FROM users WHERE id = ?').bind(user.id),
   ]);
   return json({ ok: true }, 200, { 'set-cookie': clearCookie });

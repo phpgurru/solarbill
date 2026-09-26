@@ -22,14 +22,8 @@
 		{
 			"binding": "DB",
 			"database_name": "solarbill",
-			"database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
-			"migrations_dir": "migrations"
-		},
-		{
-			"binding": "solarbill",
-			"database_name": "solarbill",
 			"database_id": "7f5f2609-d051-4fec-93f1-12084b778e36",
-			"remote": true
+			"migrations_dir": "migrations"
 		}
 	],
 	// The original bill PDFs
@@ -37,6 +31,11 @@
 		{
 			"binding": "BILLS",
 			"bucket_name": "solarbill-pdfs"
+		},
+		{
+			"bucket_name": "solarbill-pdfs",
+			"binding": "solarbill_pdfs",
+			"remote": true
 		}
 	],
 	// Daily check for "your new bill is out" reminder emails (06:00 UTC = 11:00 PKT)
@@ -49,7 +48,9 @@
 		"APP_URL": "https://solarbill.pk",
 		"APP_NAME": "Solar Bill",
 		"EMAIL_FROM": "Solar Bill <hello@solarbill.pk>",
-		"ADMIN_EMAILS": "you@example.com",
+		// OAuth client ID from Google Cloud Console (public, not a secret)
+		"GOOGLE_CLIENT_ID": "831053817920-kts4babs4msetv1jt2vsoionsbglo24k.apps.googleusercontent.com",
+		"ADMIN_EMAILS": "rehmanms@gmail.com",
 		"DEV_MODE": "0"
 	},
 	"observability": {
@@ -61,6 +62,7 @@
 	//   { "pattern": "www.solarbill.pk", "custom_domain": true }
 	// ]
 	// Secrets (set with `npx wrangler secret put NAME`, never commit them):
-	//   RESEND_API_KEY   API key from resend.com for sign-in and reminder emails
-	//   SESSION_SECRET   any long random string, signs unsubscribe links
+	//   GOOGLE_CLIENT_SECRET  OAuth client secret from Google Cloud Console, for sign-in
+	//   RESEND_API_KEY        API key from resend.com for monthly reminder emails
+	//   SESSION_SECRET        any long random string, signs unsubscribe links
 }

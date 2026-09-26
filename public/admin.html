@@ -6,18 +6,43 @@
 <title>Admin · Solar Bill</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800;900&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="/site.css">
 <link rel="stylesheet" href="/app.css">
 </head>
-<body>
-<div class="wrap">
-  <div class="top">
-    <a class="logo" href="/"><i aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>Solar Bill</a>
-    <span class="tag">Admin</span>
+<body class="tinted">
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Solar Bill home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Solar Bill</a>
+    <nav aria-label="Main">
+      <a href="/#why">Why you still pay</a>
+      <a href="/#features">Features</a>
+      <a href="/#rules">2026 rules</a>
+      <a href="/#faq">FAQ</a>
+    </nav>
+    <a class="signin" id="nav-signin" href="/app?signin=1">Sign in</a>
+    <a class="pill sm" href="/app">Check a bill</a>
   </div>
+</header>
+<main class="page">
   <div id="root" class="stackmain"><div class="card"><p class="ink2">Loading…</p></div></div>
-</div>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p class="legal">Bills are read inside your browser. When you sign in, each PDF and its figures are saved privately to your account, and you can download or delete them any time. Solar Bill is an independent tool, not affiliated with NEPRA, PITC or any electricity distribution company.</p>
+    <nav aria-label="Footer">
+      <a href="/app">Check a bill</a>
+      <a href="/app?sample=1">Sample bill</a>
+      <a href="/account">My account</a>
+      <a href="/privacy">Privacy</a>
+    </nav>
+    <p>© 2026 Solar Bill</p>
+  </div>
+</footer>
 <div class="tip" id="tip" role="tooltip"></div>
 <script src="/admin.js"></script>
+<script src="/site.js" defer></script>
 </body>
 </html>

@@ -1,62 +1,310 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-PK">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Solar Bill · Understand your net-metering bill</title>
-<meta name="description" content="Drop your LESCO, IESCO, FESCO or other net-metering electricity bill. See what your solar sent to the grid, what the evening cost you, and how your credit grows every month.">
-<meta name="theme-color" content="#10212b">
-<meta property="og:title" content="Solar Bill">
-<meta property="og:description" content="See what your solar panels really did this month, from your electricity bill.">
+<title>Net-Metering Bill Checker for LESCO, IESCO, FESCO &amp; more · Solar Bill</title>
+<meta name="description" content="Free net-metering bill checker for Pakistan. Drop your LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO or HESCO web bill to see import and export units, peak vs off-peak cost, and why you still got a bill.">
+<link rel="canonical" href="https://solarbill.pk/">
+<meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Solar Bill">
+<meta property="og:url" content="https://solarbill.pk/">
+<meta property="og:title" content="Understand your net-metering bill in seconds">
+<meta property="og:description" content="See what your solar sent to the grid, what the evening cost you, and why a net exporter can still get a bill. Free, and your bill is read inside your browser.">
+<meta property="og:image" content="https://solarbill.pk/img/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Solar Bill report for a sample LESCO net-metering bill">
+<meta property="og:locale" content="en_PK">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800;900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/app.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<link rel="preload" as="image" href="/img/report-light.webp" media="(min-width: 601px) and (prefers-color-scheme: light)">
+<link rel="preload" as="image" href="/img/report-m-light.webp" media="(max-width: 600px) and (prefers-color-scheme: light)">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/home.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://solarbill.pk/#org",
+      "name": "Solar Bill",
+      "url": "https://solarbill.pk/",
+      "logo": "https://solarbill.pk/favicon.svg"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://solarbill.pk/#site",
+      "name": "Solar Bill",
+      "url": "https://solarbill.pk/",
+      "inLanguage": "en-PK",
+      "publisher": { "@id": "https://solarbill.pk/#org" }
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://solarbill.pk/#app",
+      "name": "Solar Bill",
+      "url": "https://solarbill.pk/app",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Web browser",
+      "description": "Reads Pakistani net-metering electricity web bills (LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO, HESCO) and explains import and export units, peak and off-peak cost, quarterly settlement, credit balance and solar savings.",
+      "areaServed": { "@type": "Country", "name": "Pakistan" },
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "PKR" },
+      "featureList": [
+        "Reads the bill PDF and both QR codes in the browser",
+        "Import vs export units, split by peak and off-peak",
+        "Explains why a net exporter can still receive a bill",
+        "Credit balance and carried-forward units across the settlement cycle",
+        "Solar savings and payback",
+        "Recomputes every figure on the bill"
+      ],
+      "publisher": { "@id": "https://solarbill.pk/#org" }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://solarbill.pk/#faq",
+      "dateModified": "2026-09-26",
+      "mainEntity": [
+        { "@type": "Question", "name": "Why did I get a bill when I exported more units than I imported?", "acceptedAnswer": { "@type": "Answer", "text": "Net metering is settled by value, not just units. Evening (peak) imports are charged at the peak rate, while surplus exports are credited at the off-peak rate, and fixed charges, fuel price adjustment and taxes are not netted against exports. So a household can export more units than it uses and still owe money. On our sample LESCO bill, the quarter ended 165 units in credit but still carried an energy charge of Rs 16,233." } },
+        { "@type": "Question", "name": "What are import and export units on a net-metering bill?", "acceptedAnswer": { "@type": "Answer", "text": "Import units are the electricity you draw from the grid, mostly at night and in the evening. Export units are the surplus your solar panels send to the grid during the day. Both are recorded by the bidirectional (green) meter and split into peak (PK) and off-peak (OP) registers." } },
+        { "@type": "Question", "name": "Did net metering end in Pakistan in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "For new applicants, yes. NEPRA's Prosumer Regulations, notified on 9 February 2026, replaced net metering with net billing, where imports and exports are priced separately. An amendment notified in April 2026 lets consumers with a valid agreement on 9 February 2026 keep their earlier terms until the agreement expires, as long as they do not enlarge their system." } },
+        { "@type": "Question", "name": "What is the net-metering buyback rate in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "Reports put the rate for existing (pre-February 2026) agreements at about Rs 25 to 26 per unit, and the rate for new net-billing prosumers at roughly Rs 8 to 11 per unit, linked to the national average energy purchase price. Your own bill shows the rates actually applied to you." } },
+        { "@type": "Question", "name": "What are peak hours on an electricity bill?", "acceptedAnswer": { "@type": "Answer", "text": "Peak hours are a four-hour evening window when electricity costs more. The window moves with the season, roughly 5 to 9 PM in winter and 7 to 11 PM in summer. Units you import in this window are billed at the peak rate." } },
+        { "@type": "Question", "name": "What does MONTH COUNT 3/3 mean on my bill?", "acceptedAnswer": { "@type": "Answer", "text": "It shows where your bill falls in the settlement cycle. Surplus units are carried forward from month to month, and at the end of the cycle (3/3 on a quarterly cycle) the carried units are settled. That is why a bill at the end of a cycle can look very different from the months before it." } },
+        { "@type": "Question", "name": "Which electricity companies does Solar Bill support?", "acceptedAnswer": { "@type": "Answer", "text": "Solar Bill reads net-metering web bills from LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO, which share the PITC web-bill layout and QR codes. K-Electric bills use a different format and are not supported yet." } },
+        { "@type": "Question", "name": "Is it safe to upload my electricity bill?", "acceptedAnswer": { "@type": "Answer", "text": "Without an account, your bill is read entirely inside your browser and nothing is sent to our servers. If you sign in with Google to save your bills, the PDF and its figures are stored privately under your account, and you can download or delete them at any time." } },
+        { "@type": "Question", "name": "How do I get my net-metering bill PDF?", "acceptedAnswer": { "@type": "Answer", "text": "Open your DISCO's online web-bill page, enter the 14-digit reference number or consumer ID printed on your paper bill, and save or print the bill as a PDF. Solar Bill also reads a clear photo of the bill's QR codes." } },
+        { "@type": "Question", "name": "Is Solar Bill free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Checking a bill is free and needs no account. Signing in, also free, saves your bills by consumer ID, shows month-by-month trends and sends one reminder a month when your new bill is out." } }
+      ]
+    }
+  ]
+}
+</script>
 </head>
 <body>
-<div class="wrap">
-  <div class="top">
-    <a class="logo" href="/"><i aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></i>Solar Bill</a>
-    <div class="acct" id="acct"></div>
-    <label class="btn primary" for="file" tabindex="0"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>Add bill PDFs</label>
-    <input id="file" type="file" accept="application/pdf,image/*" multiple hidden>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Solar Bill home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Solar Bill</a>
+    <nav aria-label="Main">
+      <a href="/#why">Why you still pay</a>
+      <a href="/#features">Features</a>
+      <a href="/#rules">2026 rules</a>
+      <a href="/#faq">FAQ</a>
+    </nav>
+    <a class="signin" id="nav-signin" href="/app?signin=1">Sign in</a>
+    <a class="pill sm" href="/app">Check a bill</a>
   </div>
-  <div class="chips" id="chips"></div>
-  <div class="status" id="status" role="status" aria-live="polite"></div>
-  <div class="savebar" id="save" hidden></div>
-  <div id="main" class="stackmain"></div>
-  <footer class="foot">
-    <p><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Bills are read inside your browser. When you’re signed in, each PDF and its figures are saved privately to your account, and you can download or delete them any time.</p>
-    <p><a href="/privacy">Privacy</a> · <a href="/account">My account</a></p>
-  </footer>
-</div>
+</header>
 
-<dialog class="modal" id="signin" aria-labelledby="si-title">
-  <button class="modal-x" id="si-close" type="button" aria-label="Close">×</button>
-  <form id="si-form">
-    <div class="plain-logo">⚡ Solar Bill</div>
-    <h2 id="si-title">Save your bills</h2>
-    <p class="ink2">Enter your email and we’ll send you a sign-in link. No password to remember.</p>
-    <p class="keep" id="si-keep" hidden></p>
-    <div class="field"><label for="si-email">Email</label><input id="si-email" type="email" autocomplete="email" required placeholder="you@example.com"></div>
-    <p class="err" id="si-err" role="alert"></p>
-    <button class="btn primary big" id="si-go" type="submit">Email me a sign-in link</button>
-  </form>
-  <div id="si-sent" hidden>
-    <div class="sent-ic" aria-hidden="true">✉</div>
-    <h2>Check your inbox</h2>
-    <p class="ink2">We sent a sign-in link to <b id="si-to"></b>. It works for 15 minutes. Open it on this device to keep the bills you just added.</p>
-    <p class="note" id="si-dev"></p>
+<main>
+  <section class="hero">
+    <div class="wrap">
+      <h1>Your net&#8209;metering bill, finally clear.</h1>
+      <p class="intro">Add your electricity bill. See what your panels sent to the grid, what the evening cost you, and why a month with more exports than imports can still end in a bill.</p>
+      <div class="actions">
+        <a class="pill" href="/app">Check your bill</a>
+        <a class="more" href="/app?sample=1">See a sample bill</a>
+      </div>
+      <figure class="shot reveal">
+        <picture>
+          <source srcset="/img/report-m-dark.webp" media="(max-width: 600px) and (prefers-color-scheme: dark)" width="706" height="1564">
+          <source srcset="/img/report-m-light.webp" media="(max-width: 600px)" width="706" height="1564">
+          <source srcset="/img/report-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="/img/report-light.webp" width="2042" height="1650" alt="Solar Bill report for a sample LESCO bill: 919 kWh sent to the grid, 1,198 kWh taken from it, and a credit balance of Rs 162,458." fetchpriority="high">
+        </picture>
+        <figcaption>A real report, made from a sample LESCO bill.</figcaption>
+      </figure>
+    </div>
+    <div class="wrap">
+      <p class="works"><span>Works with web bills from</span> <b>LESCO</b> <b>IESCO</b> <b>FESCO</b> <b>GEPCO</b> <b>MEPCO</b> <b>PESCO</b> <b>HESCO</b></p>
+    </div>
+  </section>
+
+  <section class="band dark center" id="why">
+    <div class="wrap">
+      <span class="eyebrow">Why is my net-metering bill so high?</span>
+      <h2 class="h2">More out than in.<br>Still a bill.</h2>
+      <div class="sum">
+        <div><strong class="num">948</strong><span>evening units bought over the quarter, at Rs 46.85 each</span></div>
+        <div class="op" aria-hidden="true">−</div>
+        <div><strong class="num">1,113</strong><span>daytime units sent back, credited at Rs 25.32 each</span></div>
+        <div class="op" aria-hidden="true">=</div>
+        <div class="total"><strong class="num">Rs 16,233</strong><span>energy charge, although the quarter ended 165 units in credit</span></div>
+      </div>
+      <p class="note">Net metering settles by value, not only by units. Evening imports are charged at the peak rate, surplus exports are credited at the off-peak rate, and fixed charges, fuel adjustment and taxes aren’t netted at all (<a href="https://www.ppib.gov.pk/Netmetering/NetMeteringReferenceGuideforDISCOs150118-1.pdf" rel="noopener">PPIB guide for DISCOs</a>). <b>Each evening unit takes 1.85 daytime units to cancel.</b></p>
+    </div>
+  </section>
+
+  <section class="band" id="features">
+    <div class="wrap">
+      <span class="eyebrow">What you see</span>
+      <h2 class="h2">Every line on your bill,<br>in plain words.</h2>
+      <ul class="feats">
+        <li>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h7M14 12h7M17 8l4 4-4 4M7 8 3 12l4 4"/></svg>
+          <h3>Where every unit went</h3>
+          <p>Units taken from the grid and sent back, drawn as an energy flow, with the day and evening split for each.</p>
+        </li>
+        <li>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+          <h3>What the evening cost</h3>
+          <p>Your peak-hour share of the bill, and what moving a few units into daylight would save each month.</p>
+        </li>
+        <li>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>
+          <h3>Credit that carries forward</h3>
+          <p>Units rolled through the settlement cycle, where you are in it, and the balance on your account.</p>
+        </li>
+        <li>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <h3>What solar saved you</h3>
+          <p>Your bill with and without panels, how much you used directly, and a payback estimate.</p>
+        </li>
+        <li>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          <h3>A full bill check</h3>
+          <p>Energy charge, GST, electricity duty and settlement recomputed, and the QR code matched against the print.</p>
+        </li>
+        <li>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V21H3z"/><path d="M9 21v-6h6v6"/></svg>
+          <h3>Every meter you look after</h3>
+          <p>Home, shop, parents’ house. Bills are filed by consumer ID, with a reminder when the next one is out.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band alt">
+    <div class="wrap wide split">
+      <div>
+        <span class="eyebrow">Day and evening</span>
+        <h2 class="h2">The two prices on every bill.</h2>
+        <p class="intro">Your meter counts daytime and evening units separately, and your DISCO prices them differently. Solar Bill puts them side by side, shows how the quarter settled, and works out what shifting a few units would save.</p>
+        <div class="actions"><a class="more" href="/app?sample=1">Explore the sample bill</a></div>
+      </div>
+      <figure class="shot reveal">
+        <picture>
+          <source srcset="/img/day-evening-m-dark.webp" media="(max-width: 600px) and (prefers-color-scheme: dark)" width="630" height="1088">
+          <source srcset="/img/day-evening-m-light.webp" media="(max-width: 600px)" width="630" height="1088">
+          <source srcset="/img/day-evening-dark.webp" media="(prefers-color-scheme: dark)">
+          <img src="/img/day-evening-light.webp" width="2042" height="1636" loading="lazy" alt="Daytime units priced at Rs 25.32 and evening units at Rs 46.85, with a chart of how July to September settled.">
+        </picture>
+      </figure>
+    </div>
+  </section>
+
+  <section class="band center" id="how">
+    <div class="wrap">
+      <span class="eyebrow">How it works</span>
+      <h2 class="h2">Under a minute, start to finish.</h2>
+      <ol class="steps">
+        <li><h3>Download your web bill</h3><p>Open your DISCO’s online bill page, enter the reference number from your paper bill, and save it as a PDF.</p></li>
+        <li><h3>Add it to Solar Bill</h3><p>Choose the PDF, or a clear photo of its QR codes. It’s read on your device, and nothing is uploaded unless you save it.</p></li>
+        <li><h3>Read it in plain words</h3><p>What you sent, what you took, what it cost and what to change. Add next month’s bill to see the trend.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="band alt center">
+    <div class="wrap">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="margin:0 auto 22px;display:block"><rect x="4" y="11" width="16" height="10" rx="2.5"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      <h2 class="h2">Your bill stays on your device.</h2>
+      <p class="intro">Your consumer ID and address are on that PDF. Solar Bill reads it inside your browser, so trying it sends nothing to us.</p>
+      <ul class="facts">
+        <li><b>No account needed</b><span>Close the tab and the bill is gone.</span></li>
+        <li><b>Sign in with Google</b><span>No password. We receive only your email address.</span></li>
+        <li><b>Yours to delete</b><span>Download everything or delete it any time. <a href="/privacy">Privacy</a></span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" id="terms">
+    <div class="wrap narrow">
+      <span class="eyebrow">Glossary</span>
+      <h2 class="h2">Net-metering bill terms, explained.</h2>
+      <p class="intro">The labels in your bill’s net-metering box and QR code, in one line each.</p>
+      <dl class="ref">
+        <div><dt>Import units<code>IMP</code></dt><dd>Electricity you took from the grid, mostly at night and in the evening.</dd></div>
+        <div><dt>Export units<code>EXP</code></dt><dd>Surplus solar your panels sent to the grid during the day.</dd></div>
+        <div><dt>Off-peak<code>OP</code></dt><dd>Every hour outside the evening peak window. Charged, and credited, at the lower rate.</dd></div>
+        <div><dt>Peak<code>PK</code></dt><dd>A four-hour evening window, roughly 5–9 PM in winter to 7–11 PM in summer, charged at the higher rate.</dd></div>
+        <div><dt>Net units<code>NET</code></dt><dd>Imports minus exports in each band. A minus sign means you sent more than you took.</dd></div>
+        <div><dt>Month count<code>3/3</code></dt><dd>Where this bill sits in the settlement cycle. Carried units are settled at the end of it.</dd></div>
+        <div><dt>Carried-forward units<code>REMAINING</code></dt><dd>Surplus units rolled over from earlier months of the cycle.</dd></div>
+        <div><dt>Buyback rate</dt><dd>What the DISCO pays for surplus units. Reported at about Rs 25–26 for pre-2026 agreements.</dd></div>
+        <div><dt>Green meter</dt><dd>The bidirectional meter fitted for net metering. It records imports and exports separately.</dd></div>
+        <div><dt>Net billing</dt><dd>The 2026 system for new solar users: imports and exports are priced separately instead of netted.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section class="band alt" id="rules">
+    <div class="wrap narrow">
+      <span class="eyebrow">Policy</span>
+      <h2 class="h2">Net metering in 2026: what changed.</h2>
+      <p class="intro">NEPRA’s Prosumer Regulations changed the rules for new rooftop-solar users. Here is what that means for the bill in your hand.</p>
+      <dl class="ref">
+        <div><dt>9 February 2026</dt><dd>Net billing replaces net metering for new applicants. Imports are billed at the full tariff and exports are bought back separately, at roughly Rs 8–11 per unit. New agreements run five years, and solar capacity is capped at your sanctioned load. (<a href="https://www.dawn.com/news/1972203" rel="noopener">Dawn</a>, <a href="https://tribune.com.pk/story/2591628/nepra-rolls-out-new-regulations-abolishing-net-metering" rel="noopener">Express Tribune</a>)</dd></div>
+        <div><dt>April 2026</dt><dd>Existing users keep their terms. Consumers with a valid agreement on 9 February 2026 are billed under the earlier mechanism until it expires. Enlarging the system gives those terms up. (<a href="https://profit.pakistantoday.com.pk/2026/04/03/nepra-protects-existing-solar-net-metering-users-restricts-system-expansion-benefits/" rel="noopener">Profit</a>)</dd></div>
+        <div><dt>466,000 consumers</dt><dd>Pakistan had roughly 466,000 net-metering consumers and about 7,000 MW of grid-tied solar as of February 2026. (<a href="https://profit.pakistantoday.com.pk/2026/02/10/pakistans-power-regulator-ends-net-metering-for-solar-consumers-shifts-to-net-billing-model/" rel="noopener">Profit</a>)</dd></div>
+        <div><dt>What Solar Bill reads</dt><dd>Net-metering bills under the earlier terms, from the seven DISCOs above. Bills under the new net-billing rules are laid out and priced differently.</dd></div>
+      </dl>
+      <p class="stamp">Updated 26 September 2026</p>
+    </div>
+  </section>
+
+  <section class="band" id="faq">
+    <div class="wrap narrow">
+      <span class="eyebrow">FAQ</span>
+      <h2 class="h2">Solar bill questions, answered.</h2>
+      <div class="faq">
+        <details><summary>Why did I get a bill when I exported more units than I imported?</summary><div class="a"><p>Net metering is settled by value, not just units. Evening (peak) imports are charged at the peak rate, while surplus exports are credited at the off-peak rate, and fixed charges, fuel price adjustment and taxes are not netted against exports. So a household can export more units than it uses and still owe money.</p><p>On our sample LESCO bill, the quarter ended 165 units in credit but still carried an energy charge of Rs 16,233.</p></div></details>
+        <details><summary>What are import and export units on a net-metering bill?</summary><div class="a"><p>Import units are the electricity you draw from the grid, mostly at night and in the evening. Export units are the surplus your solar panels send to the grid during the day. Both are recorded by the bidirectional (green) meter and split into peak (PK) and off-peak (OP) registers.</p></div></details>
+        <details><summary>Did net metering end in Pakistan in 2026?</summary><div class="a"><p>For new applicants, yes. NEPRA’s Prosumer Regulations, notified on 9 February 2026, replaced net metering with net billing, where imports and exports are priced separately.</p><p>An amendment notified in April 2026 lets consumers with a valid agreement on 9 February 2026 keep their earlier terms until the agreement expires, as long as they do not enlarge their system.</p></div></details>
+        <details><summary>What is the net-metering buyback rate in 2026?</summary><div class="a"><p>Reports put the rate for existing (pre-February 2026) agreements at about Rs 25 to 26 per unit, and the rate for new net-billing prosumers at roughly Rs 8 to 11 per unit, linked to the national average energy purchase price. Your own bill shows the rates actually applied to you, and Solar Bill reads them for you.</p></div></details>
+        <details><summary>What are peak hours on an electricity bill?</summary><div class="a"><p>Peak hours are a four-hour evening window when electricity costs more. The window moves with the season, roughly 5 to 9 PM in winter and 7 to 11 PM in summer. Units you import in this window are billed at the peak rate.</p></div></details>
+        <details><summary>What does MONTH COUNT 3/3 mean on my bill?</summary><div class="a"><p>It shows where your bill falls in the settlement cycle. Surplus units are carried forward from month to month, and at the end of the cycle (3/3 on a quarterly cycle) the carried units are settled. That is why a bill at the end of a cycle can look very different from the months before it.</p></div></details>
+        <details><summary>Which electricity companies does Solar Bill support?</summary><div class="a"><p>Solar Bill reads net-metering web bills from LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO, which share the PITC web-bill layout and QR codes. K-Electric bills use a different format and are not supported yet.</p></div></details>
+        <details><summary>Is it safe to upload my electricity bill?</summary><div class="a"><p>Without an account, your bill is read entirely inside your browser and nothing is sent to our servers. If you sign in with Google to save your bills, the PDF and its figures are stored privately under your account, and you can download or delete them at any time.</p></div></details>
+        <details><summary>How do I get my net-metering bill PDF?</summary><div class="a"><p>Open your DISCO’s online web-bill page, enter the 14-digit reference number or consumer ID printed on your paper bill, and save or print the bill as a PDF. Solar Bill also reads a clear photo of the bill’s QR codes.</p></div></details>
+        <details><summary>Is Solar Bill free?</summary><div class="a"><p>Yes. Checking a bill is free and needs no account. Signing in, also free, saves your bills by consumer ID, shows month-by-month trends and sends one reminder a month when your new bill is out.</p></div></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band alt center">
+    <div class="wrap">
+      <h2 class="h2">Your next bill is on its way.<br>Know what it means.</h2>
+      <div class="actions">
+        <a class="pill" href="/app">Check your bill</a>
+        <a class="more" href="/app?sample=1">See a sample bill</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    <p class="legal">Bills are read inside your browser. When you sign in, each PDF and its figures are saved privately to your account, and you can download or delete them any time. Solar Bill is an independent tool, not affiliated with NEPRA, PITC or any electricity distribution company.</p>
+    <nav aria-label="Footer">
+      <a href="/app">Check a bill</a>
+      <a href="/app?sample=1">Sample bill</a>
+      <a href="/account">My account</a>
+      <a href="/privacy">Privacy</a>
+    </nav>
+    <p>© 2026 Solar Bill</p>
   </div>
-</dialog>
+</footer>
 
-<div class="dropveil" id="veil" hidden>Drop your bill PDFs</div>
-<div class="tip" id="tip" role="tooltip"></div>
-
-<script src="/vendor/pdf.min.js"></script>
-<script src="/vendor/jsQR.js"></script>
-<script src="/engine.js"></script>
-<script src="/app.js"></script>
+<script src="/site.js" defer></script>
+<script src="/home.js" defer></script>
 </body>
 </html>

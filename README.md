@@ -11,7 +11,7 @@ Drop a LESCO (or other PITC DISCO) web-bill PDF. Solar Bill reads both QR codes 
 - your credit balance and net units over time
 - a full bill check (every figure recomputed) for experts
 
-Guests can try it without an account. Signed-in users (email magic link) get their bills saved, filed by consumer ID, with a monthly reminder when the next bill is out.
+Guests can try it without an account. Signed-in users (Sign in with Google) get their bills saved, filed by consumer ID, with a monthly reminder when the next bill is out.
 
 ---
 
@@ -23,15 +23,19 @@ Guests can try it without an account. Signed-in users (email magic link) get the
 | API, sign-in, cron | Worker | `src/` |
 | Accounts, meters, parsed bill data | D1 (SQLite) | `migrations/` |
 | Original bill PDFs | R2 | bucket `solarbill-pdfs` |
-| Sign-in and reminder emails | Resend (HTTP API) | `src/email.js` |
+| Sign-in | Google OAuth 2.0 | `src/auth.js` |
+| Reminder emails | Resend (HTTP API) | `src/email.js` |
 
 **Parsing happens in the browser.** `public/engine.js` reads the PDF text and QR codes client-side. The browser uploads the PDF plus the raw material it read (`text`, `qrs`); the Worker **re-runs the same engine** on that material, so stored figures always come from one code path. The same `engine.js` file is imported by the Worker (`src/api.js`).
 
-**Accounts are email-based, meters are consumer-ID based.** Consumer IDs and reference numbers are printed on every bill and can be looked up online, so they are never used as a login. A user signs in with a magic link; each uploaded bill is filed under a *meter* (one per consumer ID per user). One account can hold several meters (home, shop, parents). Every query is scoped to the signed-in user, so two users with the same meter never see each other's uploads.
+**Accounts are email-based, meters are consumer-ID based.** Consumer IDs and reference numbers are printed on every bill and can be looked up online, so they are never used as a login. A user signs in with Google; each uploaded bill is filed under a *meter* (one per consumer ID per user). One account can hold several meters (home, shop, parents). Every query is scoped to the signed-in user, so two users with the same meter never see each other's uploads.
 
 ```
 public/
-  index.html  app.js  app.css   the main app
+  site.css  site.js             shared design: colours, type, header, buttons, footer (every page)
+  index.html  home.css  home.js the marketing homepage (/)
+  img/                          product screenshots and the link-preview image
+  app.html  app.js  app.css     the app (/app)
   engine.js                     bill parser + analysis (shared with the Worker)
   account.html account.js       meters, bills, PDFs, reminders, export, delete
   admin.html  admin.js          counts-only stats for ADMIN_EMAILS
@@ -40,10 +44,10 @@ public/
   _headers                      CSP and security headers
 src/
   worker.js   router, Origin check, cron entry
-  auth.js     magic links, sessions, one-click unsubscribe
+  auth.js     Google sign-in, sessions, one-click unsubscribe
   api.js      bills, meters, account, export, admin stats
   cron.js     monthly reminder emails
-  email.js    Resend client and email templates
+  email.js    Resend client and reminder email template
   util.js     helpers
 migrations/0001_init.sql
 ```
@@ -54,7 +58,7 @@ migrations/0001_init.sql
 
 Every Wrangler command (setup, deploy, logs, database, R2, cron, backups, troubleshooting) is collected in [WRANGLER.md](WRANGLER.md).
 
-You need a Cloudflare account, Node 20+, and a Resend account.
+You need a Cloudflare account, Node 20+, a Google Cloud project (free, for sign-in), and a Resend account (for reminders).
 
 ### 1. Domain
 
@@ -79,7 +83,23 @@ Edit `wrangler.jsonc`:
 - `ADMIN_EMAILS`: your email (comma-separate several)
 - uncomment `routes` and put your domain in it
 
-### 3. Email (Resend)
+### 3. Sign in with Google
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create a project (or pick one).
+2. **Google Auth Platform → Branding**: app name `Solar Bill`, your support email, home page `https://solarbill.pk`, privacy policy `https://solarbill.pk/privacy`, authorised domain `solarbill.pk`. Under **Audience**, choose **External** and click **Publish app** (the `openid` and `email` scopes need no Google review).
+3. **Clients → Create client → Web application**. Add these **Authorised redirect URIs**:
+   - `https://solarbill.pk/auth/google/callback`
+   - `https://solarbill.<your-subdomain>.workers.dev/auth/google/callback` (while testing on workers.dev)
+   - `http://localhost:8787/auth/google/callback` (local development)
+4. Put the **Client ID** in `GOOGLE_CLIENT_ID` in `wrangler.jsonc` (it is public), and store the secret:
+
+```bash
+npx wrangler secret put GOOGLE_CLIENT_SECRET
+```
+
+Sign-in uses the authorization-code flow with PKCE and a `state` cookie, and asks Google only for `openid email`. Accounts are matched by Google's stable user ID, falling back to email for accounts created before Google sign-in.
+
+### 4. Reminder emails (Resend)
 
 1. Sign up at resend.com and add your domain. Resend gives you DNS records (SPF, DKIM); add them in Cloudflare DNS and wait for "Verified".
 2. Create an API key.
@@ -89,7 +109,7 @@ npx wrangler secret put RESEND_API_KEY     # paste the Resend key
 npx wrangler secret put SESSION_SECRET     # paste any long random string, e.g. from: openssl rand -base64 48
 ```
 
-### 4. First deploy
+### 5. First deploy
 
 ```bash
 npm run db:migrate:remote
@@ -98,7 +118,7 @@ npm run deploy
 
 Open your domain, add a bill, sign in, and check that the email arrives.
 
-### 5. GitHub auto-deploy
+### 6. GitHub auto-deploy
 
 1. Push this project to GitHub (the remote `https://github.com/phpgurru/solarbill.git` is already set in `/var/www/solarbill`):
    ```bash
@@ -122,7 +142,7 @@ npm run db:migrate:local
 npm run dev                      # http://localhost:8787
 ```
 
-With `DEV_MODE=1` and no `RESEND_API_KEY`, the sign-in dialog shows the magic link on screen instead of emailing it. Use `http://localhost:8787`, not `127.0.0.1`, so the secure session cookie is accepted. In dev mode you can trigger reminders by hand:
+With `DEV_MODE=1` and no `GOOGLE_CLIENT_ID` in `.dev.vars`, “Continue with Google” opens a dev page where you can sign in as any email. Reminder emails are logged instead of sent when `RESEND_API_KEY` is unset. Use `http://localhost:8787`, not `127.0.0.1`, so the secure session cookie is accepted. In dev mode you can trigger reminders by hand:
 
 ```bash
 curl -X POST -H "Origin: http://localhost:8787" -b "__Host-sb_sid=<cookie>" \
@@ -137,8 +157,8 @@ All `/api/*` routes except sign-in need the session cookie. Non-GET requests mus
 
 | Method | Path | Does |
 |---|---|---|
-| POST | `/api/auth/request` | `{email}` sends a magic link (5 per email, 20 per IP address per hour) |
-| GET/POST | `/auth/verify` | confirmation page, then starts a 60-day session |
+| GET | `/auth/google` | redirects to Google's account chooser |
+| GET | `/auth/google/callback` | checks `state`, swaps the code for an ID token, starts a 60-day session, redirects to `/app` |
 | POST | `/api/auth/logout` | ends the session |
 | GET/PATCH/DELETE | `/api/me` | profile; `{reminders}`; delete account with `{confirm: email}` |
 | GET | `/api/bills` | all meters and bills for the user |
@@ -164,8 +184,8 @@ Each email has a one-click unsubscribe link.
 
 ## Security notes
 
-- Magic-link tokens and session IDs are stored only as SHA-256 hashes. Tokens are single-use and expire after 15 minutes.
-- Opening the email link shows a confirmation button; the token is used only by the POST. This stops email scanners from using up links.
+- Google sign-in uses the authorization-code flow with PKCE and a random `state` held in a 10-minute `__Host-` cookie. The ID token comes straight from Google's token endpoint; its issuer, audience, expiry and `email_verified` are checked. No passwords are stored.
+- Session IDs are stored only as SHA-256 hashes.
 - Cookies are `__Host-`, `HttpOnly`, `Secure`, `SameSite=Lax`. State-changing requests must carry the site's own `Origin`.
 - Uploaded JSON is size-limited and stripped of markup. Only real PDFs (`%PDF-` header) are stored. PDFs are served with `Content-Security-Policy: sandbox`.
 - Strict CSP on all pages. pdf.js and jsQR are self-hosted, so no third-party scripts run.
