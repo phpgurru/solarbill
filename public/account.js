@@ -18,7 +18,7 @@ let me, data;
 async function load() {
   me = await api('/api/me');
   if (!me.user) {
-    $('#root').innerHTML = `<div class="card"><h2>You’re not signed in</h2><p class="lede">Sign in with Google to see your saved bills.</p><div class="body"><a class="btn primary big" href="/app?signin=1">Sign in</a></div></div>`;
+    $('#root').innerHTML = `<div class="card"><h2>You’re not signed in</h2><p class="lede">Sign in with Google to see your saved bills.</p><div class="body"><a class="btn primary big" href="/signin">Sign in</a></div></div>`;
     return;
   }
   data = await api('/api/bills');

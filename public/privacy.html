@@ -1,17 +1,18 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-PK">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Privacy · Solar Bill</title>
+<title>Privacy Policy · Solar Bill</title>
+<meta name="description" content="How Solar Bill handles your electricity bills and account data: what stays in your browser, what is stored when you sign in with Google, who processes it, and how to download or delete it.">
+<link rel="canonical" href="https://solarbill.pk/privacy">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
 <link rel="stylesheet" href="/site.css">
-<link rel="stylesheet" href="/app.css">
 </head>
-<body class="tinted">
+<body>
 <header class="nav">
   <div class="wrap">
     <a class="brand" href="/" aria-label="Solar Bill home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Solar Bill</a>
@@ -21,24 +22,147 @@
       <a href="/#rules">2026 rules</a>
       <a href="/#faq">FAQ</a>
     </nav>
-    <a class="signin" id="nav-signin" href="/app?signin=1">Sign in</a>
+    <a class="signin" id="nav-signin" href="/signin">Sign in</a>
     <a class="pill sm" href="/app">Check a bill</a>
   </div>
 </header>
-<main class="page">
-  <section class="card prose">
-    <h2>Privacy</h2>
-    <div class="body">
-      <h3>Without an account</h3>
-      <p>Your bill is read entirely inside your browser. Nothing is sent to our servers, and closing the page clears it.</p>
-      <h3>With an account</h3>
-      <p>We store your email address, the bill PDFs you add, and the figures read from them (units, charges, QR code data, consumer ID and reference number). PDFs are kept in private storage and only your signed-in account can open them.</p>
-      <p>Your data is never sold or shared. You sign in with Google, which shares only your email address with us (never your password or contacts). We use your email only to identify your account and, if you leave it on, one reminder a month when your new bill should be out.</p>
-      <h3>Your control</h3>
-      <p>From <a href="/account">My account</a> you can download everything, delete single bills or meters, turn off reminders, or delete your account. Deleting your account removes all your bills and PDFs immediately.</p>
-      <h3>Why not log in with the consumer ID?</h3>
-      <p>Consumer IDs and reference numbers are printed on every bill and can be used to look bills up online, so they can’t protect your data. Your meters are linked to your account by these numbers, but only your Google account can sign you in.</p>
+<main class="doc">
+  <h1>Privacy Policy</h1>
+  <p class="meta">Last updated 27 September 2026</p>
+  <p class="summary">Solar Bill reads your electricity bill inside your browser. If you don’t sign in, your bill never reaches us. If you do, we keep your bills so you can come back to them, and nothing else. We don’t sell data, show ads or use tracking.</p>
+
+  <ol class="toc">
+    <li><a href="#who">Who we are</a></li>
+    <li><a href="#guest">Using Solar Bill without an account</a></li>
+    <li><a href="#account">What we store when you sign in</a></li>
+    <li><a href="#use">How we use your information</a></li>
+    <li><a href="#share">Who we share it with</a></li>
+    <li><a href="#cookies">Cookies and browser storage</a></li>
+    <li><a href="#retention">How long we keep it</a></li>
+    <li><a href="#control">Your choices and rights</a></li>
+    <li><a href="#security">Security</a></li>
+    <li><a href="#children">Children</a></li>
+    <li><a href="#changes">Changes to this policy</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ol>
+
+  <section id="who">
+    <h2>1. Who we are</h2>
+    <p>Solar Bill (“we”, “us”) runs the website at solarbill.pk, a free tool that explains Pakistani net-metering electricity bills. Solar Bill is independent. It is not part of, or affiliated with, NEPRA, PITC or any electricity distribution company (DISCO).</p>
+  </section>
+
+  <section id="guest">
+    <h2>2. Using Solar Bill without an account</h2>
+    <p>When you add a bill without signing in, the PDF or photo is opened and read by code running in your own browser. <b>The file and the figures read from it are not sent to us.</b> Closing or reloading the page clears them.</p>
+    <p>If you start signing in after adding bills, we keep those bills in your browser’s own storage (IndexedDB) for the moment it takes Google to sign you in, so they can be saved to your new account. They are removed from the browser as soon as they are saved.</p>
+    <p>Like any website, our hosting provider receives basic technical information when your browser loads a page, such as your IP address, browser type and the page requested. See <a href="#share">section 5</a>.</p>
+  </section>
+
+  <section id="account">
+    <h2>3. What we store when you sign in</h2>
+    <p>You sign in with your Google account. We ask Google only for your email address and a stable account identifier. We never see your Google password, contacts, files or anything else in your Google account.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Information</th><th>What it is</th><th>Why we keep it</th></tr></thead>
+      <tbody>
+        <tr><td>Email address</td><td>From your Google account</td><td>To identify your account and, if you leave reminders on, to send one reminder a month</td></tr>
+        <tr><td>Google account ID</td><td>A number Google assigns to your account</td><td>To recognise you when you sign in again, even if your email changes</td></tr>
+        <tr><td>Bill PDFs</td><td>The files you choose to save</td><td>So you can view and download them later</td></tr>
+        <tr><td>Bill figures</td><td>Consumer ID, reference number, DISCO, tariff, units, charges, QR code data and the bill month</td><td>To show your report, trends and savings, and to file bills under the right meter</td></tr>
+        <tr><td>Meter names</td><td>Labels you give your meters, such as “Home”</td><td>To show them back to you</td></tr>
+        <tr><td>Sign-in sessions</td><td>When you signed in and your browser type</td><td>To keep you signed in and let you sign out</td></tr>
+        <tr><td>Reminder settings</td><td>Whether reminders are on, and which months we reminded you</td><td>So we send at most one reminder a month</td></tr>
+      </tbody>
+    </table>
     </div>
+    <p>Your bill shows your name and address. We don’t read, extract or store them as separate fields, but they remain inside the PDF you save.</p>
+  </section>
+
+  <section id="use">
+    <h2>4. How we use your information</h2>
+    <ul>
+      <li>To read your bills and show you the report.</li>
+      <li>To keep your bills in your account, filed by meter.</li>
+      <li>To send a monthly reminder when your next bill should be out, if you leave reminders on.</li>
+      <li>To keep the service secure and working, for example by investigating errors.</li>
+      <li>To count totals for running the service, such as how many accounts and bills exist. These counts don’t identify anyone.</li>
+    </ul>
+    <p>We do not sell, rent or trade your information. We do not use it for advertising, and we do not build profiles of you. We do not use your bills to train AI models.</p>
+  </section>
+
+  <section id="share">
+    <h2>5. Who we share it with</h2>
+    <p>We use a few service providers to run Solar Bill. They process information only to provide their service to us.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Provider</th><th>What they do</th><th>What they receive</th></tr></thead>
+      <tbody>
+        <tr><td>Cloudflare</td><td>Hosts the website, the database and PDF storage</td><td>Your account data and saved PDFs, plus standard request logs (IP address, browser, pages requested)</td></tr>
+        <tr><td>Google</td><td>Sign-in</td><td>That you are signing in to Solar Bill</td></tr>
+        <tr><td>Resend</td><td>Sends reminder emails</td><td>Your email address and the reminder’s content</td></tr>
+        <tr><td>Google Fonts</td><td>Serves the website’s typeface</td><td>Your IP address and browser, when the font loads</td></tr>
+      </tbody>
+    </table>
+    </div>
+    <p>These providers may process data outside Pakistan. We may also disclose information if Pakistani law requires it, or to protect the safety of our users or the service.</p>
+  </section>
+
+  <section id="cookies">
+    <h2>6. Cookies and browser storage</h2>
+    <p>We use only the cookies needed to sign you in. There are no analytics, advertising or tracking cookies.</p>
+    <div class="scroll">
+    <table>
+      <thead><tr><th>Name</th><th>Purpose</th><th>Lasts</th></tr></thead>
+      <tbody>
+        <tr><td><code>__Host-sb_sid</code></td><td>Keeps you signed in</td><td>60 days, or until you sign out</td></tr>
+        <tr><td><code>__Host-sb_oauth</code></td><td>Protects the Google sign-in step against forgery</td><td>10 minutes</td></tr>
+        <tr><td><code>solarbill-pending</code> (IndexedDB)</td><td>Holds bills you added as a guest while you sign in</td><td>Until they are saved to your account</td></tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section id="retention">
+    <h2>7. How long we keep it</h2>
+    <ul>
+      <li><b>Bills and PDFs:</b> until you delete them, delete the meter they belong to, or delete your account.</li>
+      <li><b>Your account:</b> until you delete it.</li>
+      <li><b>Sign-in sessions:</b> 60 days, then removed.</li>
+      <li><b>Request logs:</b> kept by Cloudflare for a short period, typically days, for security and troubleshooting.</li>
+    </ul>
+    <p>When you delete your account, we remove your bills, PDFs, meters and sessions straight away. Our database provider keeps a rolling recovery copy for up to 30 days, so deleted rows may remain in that copy until it expires. We don’t restore from it except to recover from a failure.</p>
+  </section>
+
+  <section id="control">
+    <h2>8. Your choices and rights</h2>
+    <p>From <a href="/account">My account</a> you can, at any time:</p>
+    <ul>
+      <li><b>See and download</b> everything we hold about you, as a JSON file with links to your PDFs.</li>
+      <li><b>Correct</b> meter names, or replace a bill by adding it again.</li>
+      <li><b>Delete</b> single bills, whole meters, or your entire account.</li>
+      <li><b>Turn off reminders.</b> Every reminder email also has a one-click unsubscribe link.</li>
+    </ul>
+    <p>You can also remove Solar Bill’s access from your Google account under Security, then Third-party apps and services. For anything else, email us (see <a href="#contact">section 12</a>).</p>
+  </section>
+
+  <section id="security">
+    <h2>9. Security</h2>
+    <p>Connections are encrypted with HTTPS. PDFs are kept in private storage that only your signed-in account can open. Session identifiers are stored only as one-way hashes, and sign-in uses Google’s OAuth with protection against forgery. No system is perfectly secure, but we work to protect your information and will tell affected users about any breach as the law requires.</p>
+  </section>
+
+  <section id="children">
+    <h2>10. Children</h2>
+    <p>Solar Bill is meant for bill payers and is not directed at children under 13. We don’t knowingly collect information from children. If you think a child has created an account, contact us and we will delete it.</p>
+  </section>
+
+  <section id="changes">
+    <h2>11. Changes to this policy</h2>
+    <p>If we change how we handle your information, we will update this page and the date at the top. If a change is significant, we will also tell signed-in users by email or in the app before it takes effect.</p>
+  </section>
+
+  <section id="contact">
+    <h2>12. Contact</h2>
+    <p>Questions or requests about your data: <a href="mailto:hello@solarbill.pk">hello@solarbill.pk</a>. We aim to reply within 7 days.</p>
   </section>
 </main>
 <footer class="foot">
@@ -48,7 +172,8 @@
       <a href="/app">Check a bill</a>
       <a href="/app?sample=1">Sample bill</a>
       <a href="/account">My account</a>
-      <a href="/privacy">Privacy</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
     </nav>
     <p>© 2026 Solar Bill</p>
   </div>

@@ -5,4 +5,5 @@
 - [Homepage](https://solarbill.pk/): what Solar Bill does, why a net exporter can still get a bill, bill terms glossary, 2026 NEPRA rule changes, FAQ
 - [Check a bill](https://solarbill.pk/app): the app; add a DISCO web-bill PDF
 - [Sample bill](https://solarbill.pk/app?sample=1): a worked LESCO example
-- [Privacy](https://solarbill.pk/privacy): what is stored and how to delete it
+- [Privacy Policy](https://solarbill.pk/privacy): what is stored, who processes it, and how to delete it
+- [Terms of Service](https://solarbill.pk/terms): terms of use; figures are informational and the DISCO bill is the official record

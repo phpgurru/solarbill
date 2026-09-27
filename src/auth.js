@@ -7,14 +7,15 @@ const SESSION_DAYS = 60;
 const OAUTH_MINUTES = 10;
 
 const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-const redirectUri = url => `${url.origin}/auth/google/callback`;
+// Always https (a visit over plain http would otherwise send an http callback that Google rejects); localhost stays as is.
+const redirectUri = url => `${url.hostname === 'localhost' ? url.origin : `https://${url.host}`}/auth/google/callback`;
 const redirect = (location, cookies = []) => {
   const h = new Headers({ location, 'cache-control': 'no-store' });
   for (const c of cookies) h.append('set-cookie', c);
   return new Response(null, { status: 302, headers: h });
 };
 const oauthCookie = (v, age) => `${OAUTH_COOKIE}=${v}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${age}`;
-const failed = reason => { console.warn('Google sign-in failed:', reason); return redirect('/app?signin_error=1', [oauthCookie('', 0)]); };
+const failed = reason => { console.warn('Google sign-in failed:', reason); return redirect('/signin?error=1', [oauthCookie('', 0)]); };
 
 // Step 1: send the browser to Google's account chooser.
 export async function googleStart(req, env, url) {

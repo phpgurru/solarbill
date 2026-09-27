@@ -76,6 +76,6 @@ export function page(title, body, status = 200) {
 <body class="tinted plain">
 <header class="nav"><div class="wrap"><a class="brand" href="/" aria-label="Solar Bill home">${BOLT}Solar Bill</a><a class="pill sm" href="/app">Check a bill</a></div></header>
 <main class="page"><div class="plain-card">${body}</div></main>
-<footer class="foot"><div class="wrap"><nav aria-label="Footer"><a href="/app">Check a bill</a><a href="/account">My account</a><a href="/privacy">Privacy</a></nav><p>© 2026 Solar Bill</p></div></footer>
+<footer class="foot"><div class="wrap"><nav aria-label="Footer"><a href="/app">Check a bill</a><a href="/account">My account</a><a href="/privacy">Privacy Policy</a><a href="/terms">Terms of Service</a></nav><p>© 2026 Solar Bill</p></div></footer>
 </body></html>`, { status, headers: { 'content-type': 'text/html; charset=utf-8', 'cache-control': 'no-store', 'x-frame-options': 'DENY', 'referrer-policy': 'same-origin', 'content-security-policy': "default-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self'; form-action 'self'; frame-ancestors 'none'" } });
 }

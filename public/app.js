@@ -157,30 +157,19 @@ async function addFromText(t) {
 }
 
 /* ---------------- sign in ---------------- */
-const dlg = $('#signin');
-function openSignin(error) {
-  $('#si-err').textContent = error ? 'Google sign-in didn’t finish. Please try again.' : '';
-  const n = state.bills.filter(b => b.source !== 'sample' && b._payload).length;
-  $('#si-keep').hidden = !n; $('#si-keep').textContent = n ? `The ${n} bill${n > 1 ? 's' : ''} you added will be saved to your account when you sign in on this device.` : '';
-  dlg.showModal(); setTimeout(() => $('#si-go').focus(), 30);
-}
-$('#si-close').addEventListener('click', () => dlg.close());
-dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
-// Keep bills added as a guest in this browser while Google signs the user in, then continue.
-$('#si-go').addEventListener('click', async e => {
-  e.preventDefault();
-  const a = e.currentTarget; a.setAttribute('aria-disabled', 'true'); a.lastChild.textContent = 'Opening Google…';
+// Sign-in is its own page. Bills added as a guest wait in this browser until Google brings the user back.
+async function goSignin() {
   const guest = state.bills.filter(b => b.source !== 'sample' && b._payload);
   if (guest.length) await stashPending(guest).catch(() => {});
-  location.href = a.href;
-});
-document.addEventListener('click', e => { if (e.target.closest('[data-signin]')) { e.preventDefault(); openSignin(); } });
+  location.href = guest.length ? `/signin?keep=${guest.length}` : '/signin';
+}
+document.addEventListener('click', e => { if (e.target.closest('[data-signin]')) { e.preventDefault(); goSignin(); } });
 
 // The shared header's sign-in link becomes "My account" once signed in.
 function renderAccountBar() {
   const a = $('#nav-signin');
   if (state.user) { a.textContent = 'My account'; a.href = '/account'; a.title = state.user.email; a.removeAttribute('data-signin'); }
-  else { a.textContent = 'Sign in'; a.href = '/app?signin=1'; a.removeAttribute('title'); a.setAttribute('data-signin', ''); }
+  else { a.textContent = 'Sign in'; a.href = '/signin'; a.removeAttribute('title'); a.setAttribute('data-signin', ''); }
   $('#nav-admin').hidden = !(state.user && state.user.isAdmin);
 }
 
@@ -598,6 +587,7 @@ let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() 
 
 (async function boot() {
   const qs = new URLSearchParams(location.search);  // read once: signing in clears the query below
+  if (qs.has('signin') || qs.has('signin_error')) return location.replace(qs.has('signin_error') ? '/signin?error=1' : '/signin');
   if (!window.pdfjsLib || !window.jsQR) setStatus('The PDF reader didn’t load. Reload the page; pasting QR text (under “For experts”) still works.', true);
   try {
     const me = await api('/api/me');
@@ -620,6 +610,5 @@ let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() 
     }
   } catch (e) { console.warn('Account check failed', e); }
   if (qs.has('sample')) { history.replaceState(null, '', '/app'); await loadSample(); }
-  if ((qs.has('signin') || qs.has('signin_error')) && !state.user) { history.replaceState(null, '', '/app'); openSignin(qs.has('signin_error')); }
   render();
 })();
