@@ -29,7 +29,7 @@
     </nav>
     <a class="signin" id="nav-admin" href="/admin" hidden>Admin</a>
     <a class="signin" id="nav-signin" href="/signin" data-signin>Sign in</a>
-    <label class="pill sm" for="file" tabindex="0">Add bills</label>
+    <label class="pill sm" id="file-label" for="file" tabindex="0">Add bills</label>
     <input id="file" type="file" accept="application/pdf,image/*" multiple hidden>
   </div>
 </header>
@@ -37,6 +37,7 @@
   <div class="chips" id="chips"></div>
   <div class="status" id="status" role="status" aria-live="polite"></div>
   <div class="savebar" id="save" hidden></div>
+  <section class="progress" id="progress" aria-live="polite" hidden></section>
   <div id="main" class="stackmain"></div>
 </main>
 <footer class="foot">

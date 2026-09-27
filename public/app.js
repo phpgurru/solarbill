@@ -59,6 +59,46 @@ async function takePending() {
 /* ---------------- reading files ---------------- */
 if (window.pdfjsLib) pdfjsLib.GlobalWorkerOptions.workerSrc = '/vendor/pdf.worker.min.js';
 const setStatus = (msg, err) => { const s = $('#status'); s.textContent = msg || ''; s.classList.toggle('err', !!err); };
+
+/* Progress card shown while bills are read. Built once per batch and then only updated, so the animations never restart.
+   QR scanning keeps the main thread busy, so each step yields a frame to let the screen update. */
+const paint = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+const progress = {
+  steps: [],
+  start(files) {
+    this.n = files.length; this.i = 0; this.t0 = performance.now();
+    this.steps = [['open', 'Opening the bill'], ['qr', 'Reading the QR codes'], ['figures', 'Working out your figures']];
+    if (state.user) this.steps.push(['save', 'Saving to your account']);
+    const box = $('#progress');
+    box.innerHTML = `<div class="pg-head"><span class="ring" aria-hidden="true"></span><div><h2 class="pg-title">Reading your bill${this.n > 1 ? 's' : ''}</h2><p class="pg-file" id="pg-file"></p></div></div>
+      <div class="pg-bar" role="progressbar" aria-label="Reading bills" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i></i></div>
+      <ol class="pg-steps">${this.steps.map(([k, t]) => `<li data-step="${k}"><span class="pg-ic" aria-hidden="true"></span>${t}</li>`).join('')}</ol>
+      <div class="skel" aria-hidden="true"><i style="width:38%"></i><i style="width:72%;height:34px"></i><i class="blk"></i><div class="skel-row"><i></i><i></i><i></i></div></div>
+      <p class="pg-note">Your bill is read on this device${state.user ? ', then saved privately to your account' : ' and isn’t uploaded'}.</p>`;
+    box.hidden = false; $('#main').hidden = true; $('#file-label').setAttribute('aria-disabled', 'true');
+    box.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  },
+  file(i, f) {
+    this.i = i; $('#pg-file').textContent = this.n > 1 ? `${f.name} · ${i + 1} of ${this.n}` : f.name;
+    $('#progress').querySelectorAll('.pg-steps li').forEach(li => li.className = '');
+    return this.step('open', /pdf/i.test(f.type) || /\.pdf$/i.test(f.name) ? 'Opening the PDF' : 'Opening the photo');
+  },
+  async step(key, label) {
+    const lis = [...$('#progress').querySelectorAll('.pg-steps li')], at = lis.findIndex(li => li.dataset.step === key);
+    lis.forEach((li, j) => { li.className = j < at ? 'done' : j === at ? 'active' : ''; });
+    if (label && lis[at]) lis[at].lastChild.textContent = label;
+    const pct = Math.round(((this.i + at / this.steps.length) / this.n) * 100);
+    const bar = $('#progress .pg-bar'); bar.style.setProperty('--p', pct + '%'); bar.setAttribute('aria-valuenow', pct);
+    await paint();
+  },
+  fail() { const a = $('#progress .pg-steps li.active'); if (a) a.className = 'failed'; },
+  async done() {
+    $('#progress').querySelectorAll('.pg-steps li').forEach(li => { if (li.className !== 'failed') li.className = 'done'; });
+    $('#progress .pg-bar').style.setProperty('--p', '100%');
+    const left = 700 - (performance.now() - this.t0); if (left > 0) await new Promise(r => setTimeout(r, left));  // no flash on fast reads
+    $('#progress').hidden = true; $('#main').hidden = false; $('#file-label').removeAttribute('aria-disabled');
+  },
+};
 function decodeCanvas(c) { const x = c.getContext('2d', { willReadFrequently: true }); const d = x.getImageData(0, 0, c.width, c.height); const r = jsQR(d.data, c.width, c.height, { inversionAttempts: 'attemptBoth' }); return r ? r.data : null; }
 function canvasFrom(src, sx, sy, sW, sH, target) {
   const s = Math.min(1, target / Math.max(sW, sH)), pad = 24, w = Math.round(sW * s), h = Math.round(sH * s);
@@ -85,12 +125,13 @@ async function bitmapOf(o) {
   else return null;
   x.putImageData(id, 0, 0); return c;
 }
-async function readPdf(file) {
+async function readPdf(file, step = async () => {}) {
   const doc = await pdfjsLib.getDocument({ data: new Uint8Array(await file.arrayBuffer()), isEvalSupported: false }).promise;
   const page = await doc.getPage(1);
   const tc = await page.getTextContent();
   const items = tc.items.map(i => ({ s: i.str, x: i.transform[4], y: i.transform[5] }));
   const qrs = new Set();
+  await step('qr');
   for (let p = 1; p <= Math.min(doc.numPages, 2); p++) {
     const pg = p === 1 ? page : await doc.getPage(p); const ops = await pg.getOperatorList();
     for (let i = 0; i < ops.fnArray.length; i++) {
@@ -99,19 +140,23 @@ async function readPdf(file) {
       if (!o || !o.width) continue; const ar = o.width / o.height; if (ar < 0.8 || ar > 1.25) continue;
       const bmp = await bitmapOf(o); if (!bmp) continue;
       for (const t of [900, 1300, 1800]) { const v = decodeCanvas(canvasFrom(bmp, 0, 0, o.width, o.height, t)); if (v) { qrs.add(v); break; } }
+      await paint();
     }
   }
   if (qrs.size < 2) { const vp = page.getViewport({ scale: 3 }); const c = document.createElement('canvas'); c.width = Math.round(vp.width); c.height = Math.round(vp.height); await page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise; scanAll(c, c.width, c.height).forEach(v => qrs.add(v)); }
+  await step('figures');
   const text = NM.parseText(items);
   const b = NM.buildBill(text, [...qrs], { source: 'pdf', fileName: file.name });
   b._payload = { text, qrs: [...qrs], fileName: file.name }; b._file = file;
   return b;
 }
-async function readImage(file) {
+async function readImage(file, step = async () => {}) {
   const url = URL.createObjectURL(file);
   try {
     const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    await step('qr');
     const qrs = scanAll(img, img.naturalWidth, img.naturalHeight);
+    await step('figures');
     const b = NM.buildBill({}, qrs, { source: 'image', fileName: file.name }); b._payload = { text: {}, qrs, fileName: file.name }; return b;
   } finally { URL.revokeObjectURL(url); }
 }
@@ -121,19 +166,26 @@ function addBill(b) {
   state.bills.push(b); state.bills.sort((a, c) => (a.month || '').localeCompare(c.month || ''));
   state.sel = b.id; state.meter = mkey(b);
 }
-async function ingest(b) {
-  if (state.user) { if (!b.consumerId || !b.month) throw new Error('This bill has no consumer ID or month we can read, so it can’t be saved.'); b = await saveToServer(b); }
+async function ingest(b, step = async () => {}) {
+  if (state.user) { if (!b.consumerId || !b.month) throw new Error('This bill has no consumer ID or month we can read, so it can’t be saved.'); await step('save'); b = await saveToServer(b); }
   addBill(b);
 }
+let busy = false;
 async function handleFiles(files) {
   files = [...files].filter(f => /pdf|image/.test(f.type) || /\.pdf$/i.test(f.name)); if (!files.length) return;
+  if (busy) return setStatus('Still reading your last bill. Add more when it’s done.');
+  busy = true; setStatus(''); progress.start(files);
   let ok = 0; const bad = [];
+  const step = k => progress.step(k);
   for (const [i, f] of files.entries()) {
-    setStatus(`${state.user ? 'Reading and saving' : 'Reading'} ${f.name} (${i + 1} of ${files.length})…`);
-    try { await ingest(/pdf/i.test(f.type) || /\.pdf$/i.test(f.name) ? await readPdf(f) : await readImage(f)); ok++; }
-    catch (e) { console.warn(e); bad.push(`${f.name}${e.status ? ` (${e.message})` : ''}`); }
+    await progress.file(i, f);
+    try { await ingest(/pdf/i.test(f.type) || /\.pdf$/i.test(f.name) ? await readPdf(f, step) : await readImage(f, step), step); ok++; }
+    catch (e) { console.warn(e); progress.fail(); bad.push(`${f.name}${e.status ? ` (${e.message})` : ''}`); await new Promise(r => setTimeout(r, 600)); }
   }
-  setStatus(bad.length ? `Added ${ok} bill${ok === 1 ? '' : 's'}. Couldn’t read ${bad.join(', ')}. For photos, crop close to the QR codes and try again.`
+  await progress.done(); busy = false;
+  if (ok >= 2 && overviewBills().length >= 2) state.sel = 'all';
+  const why = 'Make sure it’s the web-bill PDF from your DISCO’s website. For a photo, crop close to the QR codes.';
+  setStatus(bad.length ? (ok ? `Added ${ok} bill${ok === 1 ? '' : 's'}. Couldn’t read ${bad.join(', ')}. ${why}` : `We couldn’t read ${bad.join(', ')}. ${why}`)
     : state.user ? `Saved ${ok} bill${ok === 1 ? '' : 's'} to your account.` : '', bad.length && !ok);
   render();
 }
@@ -176,7 +228,7 @@ function renderAccountBar() {
 /* tooltip */
 const tip = $('#tip');
 function showTip(el, x, y) { tip.innerHTML = el.getAttribute('data-tip'); tip.classList.add('on'); const r = tip.getBoundingClientRect(); let L = x + 14, T = y + 14; if (L + r.width > innerWidth - 8) L = x - r.width - 14; if (T + r.height > innerHeight - 8) T = y - r.height - 14; tip.style.left = Math.max(8, L) + 'px'; tip.style.top = Math.max(8, T) + 'px'; }
-document.addEventListener('pointermove', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) showTip(el, e.clientX, e.clientY); else tip.classList.remove('on'); });
+document.addEventListener('pointermove', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) showTip(el, e.clientX, e.clientY); else if (!(e.target.closest && e.target.closest('.hit'))) tip.classList.remove('on'); });
 document.addEventListener('focusin', e => { const el = e.target.closest && e.target.closest('[data-tip]'); if (el) { const r = el.getBoundingClientRect(); showTip(el, r.left + r.width / 2, r.top); } });
 document.addEventListener('focusout', () => tip.classList.remove('on'));
 addEventListener('scroll', () => tip.classList.remove('on'), { passive: true });
@@ -197,7 +249,9 @@ function renderChips() {
   const meterRow = keys.length > 1 ? `<div class="meters" role="group" aria-label="Meters">${keys.map(k => `<button type="button" class="mchip" aria-pressed="${k === state.meter}" data-meter="${esc(k)}">${esc(meterName(k))}</button>`).join('')}</div>` : '';
   const mb = meterBills();
   const canRemove = !state.user;
-  bar.innerHTML = meterRow + `<div class="chips-row">${mb.map(b => `<span class="chip" role="button" tabindex="0" aria-pressed="${b.id === state.sel}" data-id="${b.id}">${esc(NM.monthLabel(b.month))}${b.source === 'sample' ? ' <span class="tag">Sample</span>' : ''}${canRemove || b.source === 'sample' ? `<button class="x" type="button" aria-label="Remove ${esc(NM.monthLabel(b.month))}" data-rm="${b.id}">×</button>` : ''}</span>`).join('')}</div>`;
+  const ov = overviewBills().length >= 2 ? `<span class="chip ov" role="button" tabindex="0" aria-pressed="${state.sel === 'all'}" data-id="all">Overview</span>` : '';
+  if (state.sel === 'all' && !ov) state.sel = mb.length ? mb[mb.length - 1].id : null;
+  bar.innerHTML = meterRow + `<div class="chips-row">${ov}${mb.map(b => `<span class="chip" role="button" tabindex="0" aria-pressed="${b.id === state.sel}" data-id="${b.id}">${esc(NM.monthLabel(b.month))}${b.source === 'sample' ? ' <span class="tag">Sample</span>' : ''}${canRemove || b.source === 'sample' ? `<button class="x" type="button" aria-label="Remove ${esc(NM.monthLabel(b.month))}" data-rm="${b.id}">×</button>` : ''}</span>`).join('')}</div>`;
   bar.querySelectorAll('.mchip').forEach(c => c.addEventListener('click', () => { state.meter = c.dataset.meter; const mb2 = meterBills(); state.sel = mb2.length ? mb2[mb2.length - 1].id : null; render(); }));
   bar.querySelectorAll('.chip').forEach(c => {
     const pick = () => { state.sel = c.dataset.id; render(); };
@@ -228,7 +282,9 @@ async function loadSample() {
 document.addEventListener('click', async e => { if (e.target.closest('[data-sample]')) { e.preventDefault(); await loadSample(); render(); } });
 
 function renderMain() {
-  const m = $('#main'), b = cur();
+  const m = $('#main');
+  if (state.sel === 'all') { m.innerHTML = dashboard(); drawDashboard(); return; }
+  const b = cur();
   if (!b) { m.innerHTML = `<div class="card"><h2>Add a bill to begin</h2><p class="lede">Tap “Add bill PDFs” and choose your net-metering web bill. LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO bills share the same layout.</p><div class="body row"><label class="btn primary big" for="file">Add bill PDFs</label><button class="btn big" type="button" data-sample>See a sample bill</button></div></div>`; return; }
   const A = NM.analyze(b, optsFor(b)), checks = NM.checks(b), tl = NM.timeline(meterBills());
   m.innerHTML = [hero(b, A), dayEvening(b, A, tl), moneyCard(b, A), savingsCard(b, A), takeaways(b, A, tl), trends(b, tl), experts(b, A, checks)].filter(Boolean).join('');
@@ -454,6 +510,130 @@ function trends(b, tl) {
     </div></section>`;
 }
 
+/* ---------------- OVERVIEW: every bill of the selected meter at once ---------------- */
+const overviewBills = () => meterBills().filter(b => b.energy && b.month).sort((a, c) => a.month.localeCompare(c.month));
+function dashData() {
+  const rows = overviewBills().map(b => {
+    const e = b.energy, A = NM.analyze(b, optsFor(b)), m = (A.tx && A.tx.mult) || 1;
+    return { b, month: b.month, imp: e.imp, exp: e.exp, impOP: e.impOP, impPK: e.impPK, expOP: e.expOP, expPK: e.expPK, net: e.net,
+      saved: A.savings ?? null, premium: A.timingPremium != null ? A.timingPremium * m : null, rOP: A.rOP, rPK: A.rPK,
+      gen: A.gen ?? null, balance: b.grandTotal ?? null, share: e.imp ? e.impPK / e.imp : 0 };
+  });
+  const sum = k => rows.reduce((a, r) => a + (r[k] || 0), 0);
+  const T = { n: rows.length, imp: sum('imp'), exp: sum('exp'), impPK: sum('impPK'), net: sum('net'), saved: sum('saved'), premium: sum('premium'),
+    hasMoney: rows.some(r => r.saved != null), genRows: rows.filter(r => r.gen != null) };
+  T.gen = T.genRows.reduce((a, r) => a + r.gen, 0);
+  return { rows, T, first: rows[0], last: rows[rows.length - 1] };
+}
+const range = (a, b) => { const [ya] = a.split('-'), [yb] = b.split('-'); return ya === yb ? `${NM.monthShort(a).split(' ')[0]} – ${NM.monthShort(b)}` : `${NM.monthShort(a)} – ${NM.monthShort(b)}`; };
+const lakh = v => { const a = Math.abs(v); return a >= 1e5 ? `Rs ${(a / 1e5).toFixed(a >= 1e6 ? 1 : 2).replace(/\.?0+$/, '')} lakh` : rs(a); };
+// 12-point sparkline: history in the quiet ink, the latest month in the accent
+function spark(vals) {
+  const v = vals.slice(-12), n = v.length; if (n < 2) return '';
+  const lo = Math.min(...v), hi = Math.max(...v), W = 120, H = 32, x = i => 2 + i * (W - 4) / (n - 1), y = t => H - 3 - (t - lo) / (hi - lo || 1) * (H - 6);
+  const d = v.map((t, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(t).toFixed(1)}`).join(' ');
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><path d="${d}" fill="none" stroke="var(--line-2)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/><circle cx="${x(n - 1)}" cy="${y(v[n - 1])}" r="3.5" fill="var(--accent)" stroke="var(--surface)" stroke-width="2"/></svg>`;
+}
+const tile = (label, value, unit, note, vals) => `<div class="tile"><span class="t-l">${label}</span><span class="t-v">${value}${unit ? `<small>${unit}</small>` : ''}</span><span class="t-n">${note}</span>${vals ? spark(vals) : ''}</div>`;
+
+function dashboard() {
+  const { rows, T, first, last } = dashData();
+  const disco = last.b.disco || '', kw = last.b.qrNet && last.b.qrNet.dgCapacity;
+  const sentPct = T.imp ? Math.round(T.exp / T.imp * 100) : 0, evePct = T.imp ? Math.round(T.impPK / T.imp * 100) : 0;
+  const bal = last.balance, bal0 = first.balance, dBal = bal != null && bal0 != null && rows.length > 1 ? (bal0 - bal) : null;
+  const best = rows.reduce((a, r) => r.exp > a.exp ? r : a), eve = rows.reduce((a, r) => r.impPK > a.impPK ? r : a);
+  const bestSave = T.hasMoney ? rows.reduce((a, r) => (r.saved || 0) > (a.saved || 0) ? r : a) : null;
+  const rateUp = first.rPK != null && last.rPK != null && Math.abs(last.rPK - first.rPK) >= 0.01;
+  const insights = [
+    `<b>${NM.monthLabel(best.month)}</b> was your best month for exports: ${fmtN(best.exp)} units sent to the grid.`,
+    `<b>${NM.monthLabel(eve.month)}</b> had the most evening units (${fmtN(eve.impPK)}). Evening units cost ${last.rPK && last.rOP ? `${(last.rPK / last.rOP).toFixed(2)}×` : 'more than'} a daytime unit.`,
+    bestSave && bestSave.saved > 0 ? `Solar saved the most in <b>${NM.monthLabel(bestSave.month)}</b>: about ${rs(bestSave.saved)}.` : '',
+    rateUp ? `The evening rate ${last.rPK > first.rPK ? 'rose' : 'fell'} from Rs ${fmtN(first.rPK, 2)} to Rs ${fmtN(last.rPK, 2)} a unit between ${NM.monthLabel(first.month)} and ${NM.monthLabel(last.month)}.` : '',
+  ].filter(Boolean);
+
+  return `<section class="card dash-hero" aria-labelledby="h-ov">
+      <p class="eyebrow">${[`${T.n} bills`, range(first.month, last.month), disco, kw && `${fmtN(kw, 1).replace(/\.0$/, '')} kW solar`].filter(Boolean).join(' · ')}</p>
+      ${T.hasMoney ? `<h2 id="h-ov" class="hero-fig">${lakh(T.saved)}</h2><p class="hero-cap">saved by solar across ${T.n} months</p>
+      <p class="lede">Compared with buying the same electricity from ${esc(disco || 'your DISCO')} at your tariff. ${T.genRows.length ? '' : 'Solar you used directly at home never reaches the meter, so your real saving is higher than this.'}</p>`
+      : `<h2 id="h-ov" class="hero-fig">${fmtN(T.exp)}<small> units</small></h2><p class="hero-cap">sent to the grid across ${T.n} months</p>`}
+    </section>
+    <div class="tiles">
+      ${tile('Taken from the grid', fmtN(T.imp), 'units', `about ${fmtN(T.imp / T.n)} a month`, rows.map(r => r.imp))}
+      ${tile('Sent to the grid', fmtN(T.exp), 'units', `${sentPct}% of what you took`, rows.map(r => r.exp))}
+      ${tile('Evening units', fmtN(T.impPK), 'units', `${evePct}% of what you took came after sunset`, rows.map(r => r.impPK))}
+      ${tile(T.net > 0 ? 'Net taken' : 'Net sent back', fmtN(Math.abs(T.net)), 'units', T.net > 0 ? 'more taken than sent, overall' : 'more sent than taken, overall', rows.map(r => r.net))}
+      ${T.hasMoney ? tile('Evening premium', rs(T.premium), '', 'extra paid because units were bought in the evening', rows.map(r => r.premium || 0)) : ''}
+      ${bal != null ? tile(bal < 0 ? 'Credit now' : 'Owed now', rs(Math.abs(bal)), '', dBal == null ? `on your ${NM.monthLabel(last.month)} bill` : `${dBal >= 0 ? 'up' : 'down'} ${rs(Math.abs(dBal))} since ${NM.monthShort(first.month)}`, rows.map(r => r.balance == null ? 0 : -r.balance)) : ''}
+      ${T.genRows.length ? tile('Solar generated', fmtN(T.gen), 'units', `from your inverter readings for ${T.genRows.length} month${T.genRows.length > 1 ? 's' : ''}`, null)
+        : `<div class="tile ghost"><span class="t-l">Solar generated</span><span class="t-n">Your bill can’t see this. Open a month and type your inverter reading to include it here.</span></div>`}
+    </div>
+
+    <section class="card" aria-labelledby="h-flow"><h2 id="h-flow">Every unit, month by month</h2>
+      <p class="lede">Above the line: taken from the grid. Below: sent back. Each split into daytime and evening.</p>
+      <div class="body"><div class="legend"><span><i class="key" style="background:var(--day)"></i>Daytime</span><span><i class="key" style="background:var(--eve)"></i>Evening</span></div><div class="chart" id="d-ie"></div></div></section>
+
+    <div class="dash-2">
+      ${T.hasMoney ? `<section class="card" aria-labelledby="h-sv"><h2 id="h-sv">Saved each month</h2><p class="lede">What solar took off each bill.</p><div class="body"><div class="chart" id="d-saved"></div></div></section>` : ''}
+      <section class="card" aria-labelledby="h-sh"><h2 id="h-sh">Evening share of what you bought</h2><p class="lede">Lower is better: evening units cost the most.</p><div class="body"><div class="chart" id="d-share"></div></div></section>
+    </div>
+
+    <section class="card" aria-labelledby="h-bl"><h2 id="h-bl">Your credit over time</h2><p class="lede">Including the months printed in your bills’ history.</p><div class="body"><div class="chart" id="d-bal"></div></div></section>
+
+    <section class="card" aria-labelledby="h-in"><h2 id="h-in">Worth knowing</h2><ul class="insights">${insights.map(t => `<li>${t}</li>`).join('')}</ul></section>
+
+    <section class="card" aria-labelledby="h-tb"><h2 id="h-tb">Month by month</h2><p class="lede">Every figure from the charts above. Pick a month to open its full report.</p>
+      <div class="body tbl"><table class="dtable"><thead><tr><th>Month</th><th>Taken</th><th>Evening</th><th>Sent</th><th>Net</th>${T.hasMoney ? '<th>Saved</th>' : ''}<th>Balance</th></tr></thead><tbody>
+      ${rows.map(r => `<tr><td><a href="#" data-open="${esc(r.b.id)}">${esc(NM.monthLabel(r.month))}</a></td><td>${fmtN(r.imp)}</td><td>${fmtN(r.impPK)}</td><td>${fmtN(r.exp)}</td><td>${sgn(r.net)}</td>${T.hasMoney ? `<td>${r.saved != null ? rs(r.saved) : '—'}</td>` : ''}<td>${r.balance == null ? '—' : cr(r.balance)}</td></tr>`).join('')}
+      </tbody><tfoot><tr><th>Total</th><td>${fmtN(T.imp)}</td><td>${fmtN(T.impPK)}</td><td>${fmtN(T.exp)}</td><td>${sgn(T.net)}</td>${T.hasMoney ? `<td>${rs(T.saved)}</td>` : ''}<td></td></tr></tfoot></table></div></section>`;
+}
+
+function drawDashboard() {
+  const { rows, first, last } = dashData();
+  const tlAll = NM.timeline(meterBills()), tlBills = tlAll.filter(t => t.month >= first.month && t.month <= last.month);
+  redraw = () => { drawIE(tlBills, 'd-ie'); drawBal(tlAll, 'd-bal'); drawSaved(rows); drawShare(rows); };
+  redraw();
+  document.querySelectorAll('[data-open]').forEach(a => a.addEventListener('click', e => { e.preventDefault(); state.sel = a.dataset.open; render(); scrollTo({ top: 0, behavior: 'smooth' }); }));
+}
+// One series: every bar the same hue; only the best month carries a label
+function drawSaved(rows) {
+  const el = document.getElementById('d-saved'); if (!el) return;
+  const f = frame(el, 220), vals = rows.map(r => r.saved || 0), sc = niceScale(Math.min(0, ...vals), Math.max(...vals, 1));
+  const bw = (f.W - f.L - f.R) / rows.length, barW = Math.max(6, Math.min(24, bw * .56)), y = v => f.T + (sc.hi - v) / (sc.hi - sc.lo) * (f.H - f.T - f.B);
+  const top = vals.indexOf(Math.max(...vals));
+  let g = axisY(f, sc, y, short);
+  rows.forEach((r, i) => { const cx = f.L + bw * i + bw / 2, v = vals[i];
+    g += `<path d="${roundBar(cx, barW, y(0), y(v))}" fill="var(--sun-c)"/>`;
+    if (i === top && v > 0) g += `<text x="${cx}" y="${y(v) - 7}" text-anchor="middle" class="val">${short(v)}</text>`;
+    if (showLab(rows, i, f)) g += `<text x="${cx}" y="${f.H - 7}" text-anchor="middle">${mLab(r.month)}</text>`;
+    g += `<rect x="${f.L + bw * i}" y="${f.T}" width="${bw}" height="${f.H - f.T - f.B}" fill="transparent" tabindex="0" data-tip="<b>${rs(v)}</b> saved<br>${NM.monthLabel(r.month)}"/>`; });
+  g += `<line x1="${f.L}" x2="${f.W - f.R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${f.W} ${f.H}" width="${f.W}" height="${f.H}" role="img" aria-label="Money saved by solar each month">${g}</svg>`;
+}
+// Line with a crosshair: evening units as a share of everything bought
+function drawShare(rows) {
+  const el = document.getElementById('d-share'); if (!el) return;
+  const f = frame(el, 220, 40), sc = { lo: 0, hi: Math.max(.5, Math.ceil(Math.max(...rows.map(r => r.share)) * 10) / 10), step: .1 };
+  sc.step = sc.hi > .6 ? .2 : .1;
+  const n = rows.length, x = i => n === 1 ? (f.L + f.W - f.R) / 2 : f.L + 10 + i * (f.W - f.L - f.R - 20) / (n - 1), y = v => f.T + (sc.hi - v) / (sc.hi - sc.lo) * (f.H - f.T - f.B);
+  let g = axisY(f, sc, y, v => Math.round(v * 100) + '%');
+  const d = rows.map((r, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(r.share).toFixed(1)}`).join(' ');
+  g += `<path d="${d} L${x(n - 1)},${y(0)} L${x(0)},${y(0)} Z" fill="var(--eve)" opacity=".1"/><path d="${d}" fill="none" stroke="var(--eve)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`;
+  const L = rows[n - 1]; g += `<circle cx="${x(n - 1)}" cy="${y(L.share)}" r="4.5" fill="var(--eve)" stroke="var(--surface)" stroke-width="2"/><text x="${x(n - 1) - 8}" y="${y(L.share) - 10}" text-anchor="end" class="val">${Math.round(L.share * 100)}%</text>`;
+  rows.forEach((r, i) => { if (showLab(rows, i, f)) g += `<text x="${x(i)}" y="${f.H - 7}" text-anchor="middle">${mLab(r.month)}</text>`; });
+  g += `<line class="xh" x1="0" x2="0" y1="${f.T}" y2="${f.H - f.B}" stroke="var(--ink-2)" opacity="0"/><circle class="xd" r="4.5" fill="var(--eve)" stroke="var(--surface)" stroke-width="2" opacity="0"/>`;
+  g += `<rect class="hit" x="${f.L}" y="${f.T}" width="${f.W - f.L - f.R}" height="${f.H - f.T - f.B}" fill="transparent"/>`;
+  el.innerHTML = `<svg viewBox="0 0 ${f.W} ${f.H}" width="${f.W}" height="${f.H}" role="img" aria-label="Evening share of units bought, by month">${g}</svg>`;
+  const svg = el.querySelector('svg'), xh = svg.querySelector('.xh'), xd = svg.querySelector('.xd');
+  svg.querySelector('.hit').addEventListener('pointermove', ev => {
+    const p = svg.createSVGPoint(); p.x = ev.clientX; p.y = ev.clientY; const q = p.matrixTransform(svg.getScreenCTM().inverse());
+    let i = 0; for (let k = 1; k < n; k++) if (Math.abs(x(k) - q.x) < Math.abs(x(i) - q.x)) i = k;
+    const r = rows[i]; xh.setAttribute('x1', x(i)); xh.setAttribute('x2', x(i)); xh.setAttribute('opacity', .35); xd.setAttribute('cx', x(i)); xd.setAttribute('cy', y(r.share)); xd.setAttribute('opacity', 1);
+    tip.innerHTML = `<b>${Math.round(r.share * 100)}%</b> in the evening<br>${esc(NM.monthLabel(r.month))} · ${fmtN(r.impPK)} of ${fmtN(r.imp)} units`; tip.classList.add('on');
+    const tr = tip.getBoundingClientRect(); tip.style.left = Math.min(innerWidth - tr.width - 8, ev.clientX + 14) + 'px'; tip.style.top = Math.max(8, ev.clientY - tr.height - 12) + 'px';
+  });
+  svg.querySelector('.hit').addEventListener('pointerleave', () => { xh.setAttribute('opacity', 0); xd.setAttribute('opacity', 0); tip.classList.remove('on'); });
+}
+
 /* EXPERTS */
 const digits = v => `<span class="dg" aria-label="${v}">${String(v).padStart(5, '0').split('').map(d => `<i>${d}</i>`).join('')}</span>`;
 function experts(b, A, checks) {
@@ -535,8 +715,8 @@ function drawNet(tl) {
   g += `<line x1="${f.L}" x2="${f.W - f.R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)" stroke-width="1.5"/>`;
   el.innerHTML = `<svg viewBox="0 0 ${f.W} ${f.H}" width="${f.W}" height="${f.H}" role="img" aria-label="Net units per month">${g}</svg>`;
 }
-function drawBal(tl) {
-  const el = $('#c-bal'); if (!el) return;
+function drawBal(tl, id = 'c-bal') {
+  const el = document.getElementById(id); if (!el) return;
   const d = tl.map((t, i) => ({ ...t, i })).filter(t => t.balance != null); if (d.length < 2) { el.innerHTML = '<div class="empty">Not enough history yet.</div>'; return; }
   const f = frame(el, 210), vals = d.map(t => -t.balance), sc = niceScale(Math.min(0, ...vals), Math.max(...vals));
   const bw = (f.W - f.L - f.R) / tl.length, x = i => f.L + bw * i + bw / 2, y = v => f.T + (sc.hi - v) / (sc.hi - sc.lo) * (f.H - f.T - f.B);
@@ -547,12 +727,12 @@ function drawBal(tl) {
   d.forEach((t, k) => { const last = k === d.length - 1; g += `<circle cx="${x(t.i)}" cy="${y(-t.balance)}" r="${last ? 6 : 3.5}" fill="${last ? 'var(--sun-c)' : 'var(--surface)'}" stroke="var(--sun-c)" stroke-width="2"/>`; });
   tl.forEach((t, i) => { if (showLab(tl, i, f)) g += `<text x="${x(i)}" y="${f.H - 7}" text-anchor="middle">${mLab(t.month)}</text>`;
     if (t.balance != null) g += `<rect x="${f.L + bw * i}" y="${f.T}" width="${bw}" height="${f.H - f.T - f.B}" fill="transparent" tabindex="0" data-tip="<b>${NM.monthLabel(t.month)}</b><br>${t.balance < 0 ? `Credit ${rs(-t.balance)}` : `Owed ${rs(t.balance)}`}${t.delta != null ? `<br>${t.delta > 0 ? `Bill of ${rs(t.delta)} paid from credit` : `Earned ${rs(-t.delta)} credit`}` : ''}"/>`; });
-  el.innerHTML = `<svg viewBox="0 0 ${f.W} ${f.H}" width="${f.W}" height="${f.H}" role="img" aria-label="Credit balance over time">${g}</svg>`;
+  el.innerHTML = `<svg viewBox="0 0 ${f.W} ${f.H}" width="${f.W}" height="${f.H}" role="img" aria-label="Credit balance over time">${g.replace(/id="balg"/, `id="balg-${id}"`).replace(/url\(#balg\)/, `url(#balg-${id})`)}</svg>`;
 }
-function drawIE(tl) {
-  const el = $('#c-ie'); if (!el) return; const d = tl.map((t, i) => ({ ...t, i })).filter(t => t.impOP != null); const f = frame(el, 240);
+function drawIE(tl, id = 'c-ie') {
+  const el = document.getElementById(id); if (!el) return; const d = tl.map((t, i) => ({ ...t, i })).filter(t => t.impOP != null); const f = frame(el, 240);
   const sc = niceScale(-Math.max(...d.map(t => t.expOP + t.expPK)), Math.max(...d.map(t => t.impOP + t.impPK)));
-  const y = v => f.T + (sc.hi - v) / (sc.hi - sc.lo) * (f.H - f.T - f.B), bw = (f.W - f.L - f.R) / tl.length, barW = Math.max(5, Math.min(28, bw * .6));
+  const y = v => f.T + (sc.hi - v) / (sc.hi - sc.lo) * (f.H - f.T - f.B), bw = (f.W - f.L - f.R) / tl.length, barW = Math.max(5, Math.min(24, bw * .6));
   let g = axisY(f, sc, y, short);
   const seg = (cx, a, b2, col) => { const t = Math.min(y(a), y(b2)), h = Math.abs(y(a) - y(b2)); return h < .5 ? '' : `<rect x="${cx - barW / 2}" y="${t}" width="${barW}" height="${Math.max(0, h - 2)}" rx="3" fill="${col}"/>`; };
   d.forEach(t => { const cx = f.L + bw * t.i + bw / 2;
@@ -581,9 +761,9 @@ function drawCycle() {
   g += `<line x1="${f.L}" x2="${f.W - f.R}" y1="${y(0)}" y2="${y(0)}" stroke="var(--axis)" stroke-width="1.5"/>`;
   el.innerHTML = `<div class="legend" style="margin:0 0 4px"><span><i class="dot" style="background:var(--day)"></i>Daytime</span><span><i class="dot" style="background:var(--eve)"></i>Evening</span></div><svg viewBox="0 0 ${f.W} ${f.H}" width="${f.W}" height="${f.H}" role="img" aria-label="Units per month in this settlement cycle, then settled daytime and evening totals">${g}</svg>`;
 }
-let lastTl = [];
-function drawCharts(tl) { lastTl = tl; drawNet(tl); drawBal(tl); drawIE(tl); drawCycle(); }
-let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => drawCharts(lastTl), 120); });
+let redraw = () => {};
+function drawCharts(tl) { redraw = () => { drawNet(tl); drawBal(tl); drawIE(tl); drawCycle(); }; redraw(); }
+let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => redraw(), 120); });
 
 (async function boot() {
   const qs = new URLSearchParams(location.search);  // read once: signing in clears the query below
@@ -606,7 +786,7 @@ let rt; addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() 
       } else if (qs.has('welcome')) setStatus(`Signed in as ${me.user.email}.`);
       if (location.search) history.replaceState(null, '', '/app');
       const last = state.bills[state.bills.length - 1];
-      if (last) { state.sel = last.id; state.meter = mkey(last); }
+      if (last) { state.sel = last.id; state.meter = mkey(last); if (!qs.has('sample') && overviewBills().length >= 2) state.sel = 'all'; }
     }
   } catch (e) { console.warn('Account check failed', e); }
   if (qs.has('sample')) { history.replaceState(null, '', '/app'); await loadSample(); }
