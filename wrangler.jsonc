@@ -56,11 +56,11 @@
 	"observability": {
 		"enabled": true
 	}
-	// After adding your domain to Cloudflare, uncomment to serve the app on it:
-	// ,"routes": [
-	//   { "pattern": "solarbill.pk", "custom_domain": true },
-	//   { "pattern": "www.solarbill.pk", "custom_domain": true }
-	// ]
+	// solarbill.pk is the only primary host. www.solarbill.pk is a proxied DNS record with a
+	// Cloudflare Redirect Rule (301 to https://solarbill.pk, path and query kept); it never reaches the Worker.
+	,"routes": [
+	  { "pattern": "solarbill.pk", "custom_domain": true }
+	]
 	// Secrets (set with `npx wrangler secret put NAME`, never commit them):
 	//   GOOGLE_CLIENT_SECRET  OAuth client secret from Google Cloud Console, for sign-in
 	//   RESEND_API_KEY        API key from resend.com for monthly reminder emails
