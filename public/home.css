@@ -97,3 +97,13 @@ ol,ul{padding:0;margin:0;list-style:none}
   .js .reveal{opacity:0;transform:translateY(24px) scale(.985);transition:opacity 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
   .js .reveal.on{opacity:1;transform:none}
 }
+
+/* latest guides (filled by scripts/build-blog.mjs) */
+.guides{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:clamp(40px,5vw,64px)}
+@media (max-width:900px){.guides{grid-template-columns:minmax(0,1fr)}}
+.guides a{display:flex;flex-direction:column;height:100%;padding:26px 24px 22px;border-radius:20px;background:var(--alt);color:var(--fg);transition:transform .2s ease}
+.guides a:hover{text-decoration:none;transform:translateY(-2px)}
+.guides .k{font-size:.78rem;font-weight:600;letter-spacing:.02em;text-transform:uppercase;color:var(--warm)}
+.guides h3{margin-top:10px;font-size:1.28rem;font-weight:600;letter-spacing:-.02em;line-height:1.22}
+.guides p{margin-top:8px;color:var(--fg2);font-size:.98rem;flex:1}
+.guides .m{margin-top:16px;font-size:.84rem;color:var(--accent)}

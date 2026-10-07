@@ -5,5 +5,23 @@
 - [Homepage](https://solarbill.pk/): what Solar Bill does, why a net exporter can still get a bill, bill terms glossary, 2026 NEPRA rule changes, FAQ
 - [Check a bill](https://solarbill.pk/app): the app; add a DISCO web-bill PDF
 - [Sample bill](https://solarbill.pk/app?sample=1): a worked LESCO example
+- [Questions answered](https://solarbill.pk/questions): 58 short answers about solar and net-metering bills in Pakistan
+- [Guides](https://solarbill.pk/blog/): long-form explainers
+
+## Guides
+
+- [Why your net-metering bill is still high, even after exporting more](https://solarbill.pk/blog/why-net-metering-bill-still-high): Exported more units than you used and still got a LESCO, IESCO or FESCO bill? The seven reasons a solar net-metering bill stays high in Pakistan, with a worked example and what to do about each.
+- [How to read a net-metering bill, line by line](https://solarbill.pk/blog/how-to-read-net-metering-bill): A line-by-line guide to the Pakistani net-metering web bill: import and export units, IMP-OP, EXP-PK, NET units, COE, FIX-CHRG, MONTH COUNT, REMAINING units, arrears and the CR credit balance, with a worked LESCO example.
+- [How a net-metering bill is calculated, step by step](https://solarbill.pk/blog/net-metering-bill-calculation): The exact formula DISCOs use for a net-metering bill in Pakistan: net units by band, peak rate, buyback rate, carried-forward units, fixed charge, duty and 18% GST, worked through on a real LESCO bill.
+- [Peak hours in Pakistan: timings by season, and what they cost a solar home](https://solarbill.pk/blog/peak-hours-pakistan): Official peak and off-peak electricity timings for LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO by month, the 2026 peak and off-peak rates, and how solar net-metering users can cut their peak-hour bill.
+- [Quarterly settlement explained: MONTH COUNT, carried-forward units and credit](https://solarbill.pk/blog/quarterly-settlement-carried-forward-units): How net-metering settlement works in Pakistan: what MONTH COUNT 1/3, 2/3 and 3/3 mean, how REMAINING (carried-forward) units roll over, why the settlement bill is larger, and how surplus credit is adjusted or paid.
+- [Fixed charges, FPA, QTA and taxes on a solar bill, explained](https://solarbill.pk/blog/fpa-fixed-charges-taxes-solar-bill): What the fixed charge (Rs 675/kW), fuel price adjustment (FPA), quarterly tariff adjustment (QTA), GST, income tax, electricity duty and PTV fee mean on a Pakistani electricity bill in 2026, and which ones solar exports can’t reduce.
+- [Net metering vs net billing: what changed for solar users in 2026](https://solarbill.pk/blog/net-metering-vs-net-billing-2026): NEPRA’s Prosumer Regulations 2026 replaced net metering with net billing. Who is affected, the Rs 25.32 vs Rs 8.13 buyback rates, the sanctioned-load cap, 5-year agreements, renewals, expansions, and a worked bill under both systems.
+- [Wrong net-metering bill? How to check it and complain to your DISCO or NEPRA](https://solarbill.pk/blog/wrong-net-metering-bill-complaint): Export units missing, estimated reading, bill over 30 days, detection charges or a stuck green meter? How to spot a wrong net-metering bill in Pakistan and complain through 118, 8118, PITC CCMS and the NEPRA online complaint portal.
+- [How to download your LESCO, IESCO, FESCO or any DISCO bill as a PDF](https://solarbill.pk/blog/download-duplicate-electricity-bill): Download a duplicate electricity web bill for LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO, HESCO, SEPCO, QESCO, TESCO or HAZECO from the official PITC website using your 14-digit reference number or customer ID, and save it as a PDF.
+- [Is rooftop solar still worth it in Pakistan in 2026?](https://solarbill.pk/blog/is-solar-worth-it-pakistan-2026): With net billing paying Rs 8.13 per exported unit and fixed charges of Rs 675/kW, is rooftop solar still worth it in Pakistan? How self-consumption, peak hours and batteries change the payback in 2026.
+
+## Policies
+
 - [Privacy Policy](https://solarbill.pk/privacy): what is stored, who processes it, and how to delete it
 - [Terms of Service](https://solarbill.pk/terms): terms of use; figures are informational and the DISCO bill is the official record

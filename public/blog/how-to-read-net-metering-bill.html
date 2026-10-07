@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en-PK">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>How to Read a Net-Metering Bill (LESCO, IESCO, FESCO) Line by Line · Solar Bill</title>
+<meta name="description" content="A line-by-line guide to the Pakistani net-metering web bill: import and export units, IMP-OP, EXP-PK, NET units, COE, FIX-CHRG, MONTH COUNT, REMAINING units, arrears and the CR credit balance, with a worked LESCO example.">
+<link rel="canonical" href="https://solarbill.pk/blog/how-to-read-net-metering-bill">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Solar Bill">
+<meta property="og:url" content="https://solarbill.pk/blog/how-to-read-net-metering-bill">
+<meta property="og:title" content="How to Read a Net-Metering Bill (LESCO, IESCO, FESCO) Line by Line">
+<meta property="og:description" content="A line-by-line guide to the Pakistani net-metering web bill: import and export units, IMP-OP, EXP-PK, NET units, COE, FIX-CHRG, MONTH COUNT, REMAINING units, arrears and the CR credit balance, with a worked LESCO example.">
+<meta property="og:image" content="https://solarbill.pk/img/og.png">
+<meta property="og:locale" content="en_PK">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap">
+<link rel="stylesheet" href="/site.css">
+<link rel="stylesheet" href="/blog.css">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@graph": [
+  {
+   "@type": "Organization",
+   "@id": "https://solarbill.pk/#org",
+   "name": "Solar Bill",
+   "url": "https://solarbill.pk/",
+   "logo": "https://solarbill.pk/favicon.svg"
+  },
+  {
+   "@type": "BlogPosting",
+   "@id": "https://solarbill.pk/blog/how-to-read-net-metering-bill#post",
+   "headline": "How to read a net-metering bill, line by line",
+   "description": "A line-by-line guide to the Pakistani net-metering web bill: import and export units, IMP-OP, EXP-PK, NET units, COE, FIX-CHRG, MONTH COUNT, REMAINING units, arrears and the CR credit balance, with a worked LESCO example.",
+   "inLanguage": "en-PK",
+   "datePublished": "2026-10-07",
+   "dateModified": "2026-10-07",
+   "mainEntityOfPage": "https://solarbill.pk/blog/how-to-read-net-metering-bill",
+   "image": "https://solarbill.pk/img/og.png",
+   "author": {
+    "@type": "Organization",
+    "@id": "https://solarbill.pk/#org",
+    "name": "Solar Bill",
+    "url": "https://solarbill.pk/",
+    "logo": "https://solarbill.pk/favicon.svg"
+   },
+   "publisher": {
+    "@id": "https://solarbill.pk/#org"
+   },
+   "about": [
+    "net metering bill explained",
+    "how to read LESCO net metering bill",
+    "import export units",
+    "IMP-OP EXP-OP meaning",
+    "net metering QR code"
+   ],
+   "keywords": "net metering bill explained, how to read LESCO net metering bill, import export units, IMP-OP EXP-OP meaning, net metering QR code, MONTH COUNT 3/3",
+   "wordCount": 987,
+   "speakable": {
+    "@type": "SpeakableSpecification",
+    "cssSelector": [
+     ".answer"
+    ]
+   }
+  },
+  {
+   "@type": "BreadcrumbList",
+   "itemListElement": [
+    {
+     "@type": "ListItem",
+     "position": 1,
+     "name": "Home",
+     "item": "https://solarbill.pk/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 2,
+     "name": "Guides",
+     "item": "https://solarbill.pk/blog/"
+    },
+    {
+     "@type": "ListItem",
+     "position": 3,
+     "name": "How to read a net-metering bill, line by line",
+     "item": "https://solarbill.pk/blog/how-to-read-net-metering-bill"
+    }
+   ]
+  },
+  {
+   "@type": "FAQPage",
+   "@id": "https://solarbill.pk/blog/how-to-read-net-metering-bill#faq",
+   "mainEntity": [
+    {
+     "@type": "Question",
+     "name": "Where are the import and export units on my bill?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "On PITC web bills (LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO, HESCO) the meter-reading table lists four rows for a net-metering connection: import off-peak, import peak, export off-peak and export peak, each with previous reading, present reading and units. The same numbers are in the net-metering QR code as IMP-OP, IMP-PK, EXP-OP and EXP-PK."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What does a minus sign in NET units mean?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "It means you sent more units to the grid than you took in that band. NET-OP of −47 means 47 more daytime units were exported than imported. Negative net units are credited, not charged."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What does CR mean on my electricity bill?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "CR stands for credit. An amount such as 162,458 CR means the DISCO owes you that much, and it is adjusted against future bills. You do not pay a bill that ends in CR."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Why are the billed units so much lower than my import units?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "Billed units are net units: imports minus exports, added across the off-peak and peak bands. A household that imported 1,198 units and exported 919 has 279 billed units, even though it used far more electricity from the grid."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "What is COE on a net-metering bill?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "COE is the cost of electricity: net units multiplied by the off-peak and peak rates, before the fixed charge and taxes. On a bill at the end of a settlement cycle it also includes the units carried forward from earlier months."
+     }
+    },
+    {
+     "@type": "Question",
+     "name": "Is the QR code on my bill the same as the printed figures?",
+     "acceptedAnswer": {
+      "@type": "Answer",
+      "text": "It should be. PITC bills carry a payment QR (for paying through banking apps) and a net-metering QR with the meter units and bill components. Solar Bill reads both and flags any difference from the printed numbers."
+     }
+    }
+   ]
+  }
+ ]
+}
+</script>
+</head>
+<body>
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="/" aria-label="Solar Bill home"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Solar Bill</a>
+    <nav aria-label="Main">
+      <a href="/#why">Why you still pay</a>
+      <a href="/blog/" aria-current="page">Guides</a>
+      <a href="/questions">Questions</a>
+      <a href="/#rules">2026 rules</a>
+      <a href="/#faq">FAQ</a>
+    </nav>
+    <a class="signin" id="nav-signin" href="/signin">Sign in</a>
+    <a class="pill sm" href="/app">Check a bill</a>
+  </div>
+</header>
+<main>
+<article class="post">
+  <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a><span aria-hidden="true">›</span><a href="/blog/">Guides</a><span aria-hidden="true">›</span><a href="/blog/#basics">Read your bill</a></nav>
+  <h1>How to read a net-metering bill, line by line</h1>
+  <p class="dek">Every box, code and number on a LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO or HESCO net-metering bill, using one real bill as the example.</p>
+  <p class="meta">Updated <time datetime="2026-10-07">7 October 2026</time> · 4 min read</p>
+  <div class="answer"><b class="l">Short answer</b><p>A net-metering bill records four meter registers: <b>import off-peak</b>, <b>import peak</b>, <b>export off-peak</b> and <b>export peak</b>. Imports minus exports in each band give your <b>net units</b>. Those net units, plus any units carried forward from earlier months of the settlement cycle, are priced to make the <b>cost of electricity (COE)</b>: peak units at the peak rate, and an off-peak surplus at the buyback rate. Add the <b>fixed charge</b>, then <b>electricity duty</b> and <b>GST</b>, and you get the current bill. A <b>CR</b> after an amount means credit in your favour.</p></div>
+  <nav class="toc" aria-label="In this guide"><b>In this guide</b><ol><li><a href="#the-connection-details">The connection details</a></li><li><a href="#the-four-meter-registers">The four meter registers</a></li><li><a href="#net-units-import-minus-export">Net units: import minus export</a></li><li><a href="#month-count-and-carried-forward-units">Month count and carried-forward units</a></li><li><a href="#the-charges">The charges</a></li><li><a href="#arrears-credit-and-the-amount-payable">Arrears, credit and the amount payable</a></li><li><a href="#the-two-qr-codes">The two QR codes</a></li><li><a href="#a-60-second-checklist">A 60-second checklist</a></li><li><a href="#faq">Questions</a></li></ol></nav>
+  <div class="prose">
+<p>A net-metering bill looks like an ordinary bill with a few extra rows, but those rows change how everything is calculated. This guide walks through a real LESCO bill for September 2026 (personal details removed). The same layout is used by every PITC-run distribution company: LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO.</p>
+
+<h2 id="the-connection-details">The connection details</h2>
+<p>The top of the bill tells you what kind of connection you have. On a net-metering bill, look for:</p>
+<ul>
+<li><b>Tariff</b>, for example <code>A-1b(03)T</code>. <code>A-1</code> is domestic, <code>b</code> is the time-of-use (peak/off-peak) tariff, and <code>T</code> marks a three-phase meter.</li>
+<li><b>Connection type</b>: <code>NET METERING CONNECTION</code>.</li>
+<li><b>Sanctioned load</b>: the load in kW you are approved for (8 kW on our example). Under the 2026 rules, new solar systems are capped at this figure.</li>
+<li><b>MDI</b>: maximum demand indicator, the highest load the meter recorded this month (4 kW here).</li>
+<li><b>Reference number</b>: 14 digits, used to download the web bill. The <b>consumer ID</b> (8 digits on LESCO) identifies the connection.</li>
+</ul>
+
+<h2 id="the-four-meter-registers">The four meter registers</h2>
+<p>Your green (bidirectional) meter keeps four separate counters. The bill shows each with its previous reading, present reading and units:</p>
+<div class="scroll"><table>
+<thead><tr><th>Register</th><th>Code</th><th class="n">Previous</th><th class="n">Present</th><th class="n">Units</th></tr></thead>
+<tbody>
+<tr><td>Import, off-peak</td><td><code>IMP-OP</code></td><td class="n">12,553</td><td class="n">13,424</td><td class="n">871</td></tr>
+<tr><td>Import, peak</td><td><code>IMP-PK</code></td><td class="n">4,523</td><td class="n">4,850</td><td class="n">327</td></tr>
+<tr><td>Export, off-peak</td><td><code>EXP-OP</code></td><td class="n">29,322</td><td class="n">30,240</td><td class="n">918</td></tr>
+<tr><td>Export, peak</td><td><code>EXP-PK</code></td><td class="n">20</td><td class="n">21</td><td class="n">1</td></tr>
+</tbody></table></div>
+<p><b>Import</b> is what you took from the grid. <b>Export</b> is what your panels sent to it. <b>Off-peak</b> covers every hour outside the evening peak window; <b>peak</b> is a four-hour evening window that moves with the season (see <a href="/blog/peak-hours-pakistan">peak hours in Pakistan</a>).</p>
+<p>The first check anyone can do: <b>present minus previous should equal units</b> (times the multiplying factor, which is 1 on household meters). If it doesn’t, the reading is wrong.</p>
+<p>Notice how lopsided the bands are. Almost all exports (918 units) happen in daylight, which is off-peak. Peak exports are close to zero because the sun has set. Peak imports (327 units) are the evening fans, lights and air-conditioners. This mismatch is the main reason solar homes still get bills.</p>
+
+<h2 id="net-units-import-minus-export">Net units: import minus export</h2>
+<p>Net units are worked out separately in each band:</p>
+<ul>
+<li><b>NET-OP</b> = 871 − 918 = <b>−47</b>. Negative: you exported more than you imported in off-peak hours.</li>
+<li><b>NET-PK</b> = 327 − 1 = <b>326</b>. Positive: you are charged for these.</li>
+</ul>
+<p><b>Billed units</b> on the bill is the sum: −47 + 326 = <b>279</b>. That is why billed units on a solar bill can look tiny compared with what the house actually used.</p>
+<p class="callout"><b>Off-peak credit does not cancel peak units one for one.</b> The two bands are priced separately, so 326 peak units cost far more than 47 off-peak units earn. See <a href="/blog/why-net-metering-bill-still-high">why your bill is still high</a>.</p>
+
+<h2 id="month-count-and-carried-forward-units">Month count and carried-forward units</h2>
+<p>Net-metering bills are settled over a cycle, usually a quarter. Two fields tell you where you are in it:</p>
+<ul>
+<li><b>MONTH COUNT</b>: <code>3/3</code> means this is the third and final month of the cycle, the settlement month.</li>
+<li><b>REMAINING-PREVIOUS-OP / PK</b>: net units carried forward from earlier months of the cycle. Our example carried <b>−1,066</b> off-peak units (a surplus) and <b>622</b> peak units (owed).</li>
+<li><b>REMAINING-PRESENT-OP / PK</b>: what carries into next month. At 3/3 these reset to 0.</li>
+</ul>
+<p>So at settlement the bill prices the whole quarter: off-peak −47 − 1,066 = <b>−1,113</b>, peak 326 + 622 = <b>948</b>. More on this in <a href="/blog/quarterly-settlement-carried-forward-units">how quarterly settlement works</a>.</p>
+
+<h2 id="the-charges">The charges</h2>
+<p>The net-metering QR code (and the charges box) lists the bill components:</p>
+<div class="scroll"><table>
+<thead><tr><th>Line</th><th>Code</th><th class="n">Amount (Rs)</th><th>How it is worked out</th></tr></thead>
+<tbody>
+<tr><td>Cost of electricity</td><td><code>COE</code></td><td class="n">16,232.51</td><td>25.32 × (−1,113) + 46.85 × 948</td></tr>
+<tr><td>Fixed charge</td><td><code>FIX-CHRG</code></td><td class="n">2,700.00</td><td>Rs 675 × 4 kW (the higher of half the 8 kW sanctioned load, or MDI)</td></tr>
+<tr><td>Electricity duty</td><td><code>E-DUTY</code></td><td class="n">243.49</td><td>1.5% (<code>ED-RATE</code>) of COE</td></tr>
+<tr><td>Sales tax</td><td><code>GST</code></td><td class="n">3,452.00</td><td>18% of (COE + fixed charge + duty)</td></tr>
+<tr class="t"><td>Current bill</td><td></td><td class="n">22,628.00</td><td>Charges 18,932.51 + taxes 3,695.49</td></tr>
+</tbody></table></div>
+<p>Rs 25.32 is the <b>buyback rate</b> for surplus units under pre-2026 agreements (NEPRA’s national average power purchase price for 2026). Rs 46.85 is the peak tariff. If your off-peak band were net positive, those units would instead be charged at the off-peak tariff, Rs 34.53. Many domestic bills no longer show electricity duty: the federal government asked provinces to stop collecting it through electricity bills from July 2025.</p>
+<p>The full working, with every step, is in <a href="/blog/net-metering-bill-calculation">how a net-metering bill is calculated</a>. Other months or DISCOs may add lines such as <b>FPA</b> (fuel price adjustment), <b>QTA</b> (quarterly tariff adjustment), income tax or further tax; see <a href="/blog/fpa-fixed-charges-taxes-solar-bill">FPA, fixed charges and taxes</a>.</p>
+
+<h2 id="arrears-credit-and-the-amount-payable">Arrears, credit and the amount payable</h2>
+<p>The bottom of the bill brings in your running balance:</p>
+<ul>
+<li><b>Arrears</b>: −185,086. The minus means the account was already in credit by Rs 185,086.</li>
+<li><b>Current bill</b>: 22,628.</li>
+<li><b>Payable</b>: −185,086 + 22,628 = <b>162,458 CR</b>.</li>
+</ul>
+<p>When the total ends in <b>CR</b>, there is nothing to pay. The current bill was simply taken out of the credit. The bill-history table on the right shows the same balance month by month, so you can see the credit rise in sunny months and fall in winter or after a settlement.</p>
+
+<h2 id="the-two-qr-codes">The two QR codes</h2>
+<p>PITC net-metering bills carry two QR codes:</p>
+<ol>
+<li><b>Payment QR</b>: a standard bank-payment code with the DISCO’s name, collection account, your consumer ID, the 14-digit reference, the bill month and the due date. It ends in a checksum, so a damaged or altered code can be detected.</li>
+<li><b>Net-metering QR</b>: plain text with your customer details, solar capacity (<code>DG-CAPACITY</code>), commissioning date, the four registers, net units, month count, carried-forward units and the bill components. This is the most precise record on the bill.</li>
+</ol>
+<p>Solar Bill reads both, compares them with the printed numbers, and recomputes each line. If anything doesn’t add up, it says which line and by how much.</p>
+
+<h2 id="a-60-second-checklist">A 60-second checklist</h2>
+<ol>
+<li>Present − previous = units, for all four registers.</li>
+<li>NET-OP = IMP-OP − EXP-OP, and NET-PK = IMP-PK − EXP-PK.</li>
+<li>Billed units = NET-OP + NET-PK.</li>
+<li>If MONTH COUNT shows the last month, COE uses quarter totals, including REMAINING-PREVIOUS.</li>
+<li>If the bill shows E-DUTY, it equals ED-RATE % of COE.</li>
+<li>GST ≈ 18% of COE + fixed charge + duty.</li>
+<li>Payable = arrears + current bill. CR means credit.</li>
+</ol>
+  </div>
+  <section class="prose" aria-labelledby="faq"><h2 id="faq">Questions people ask</h2>
+<div class="faq">
+<details><summary>Where are the import and export units on my bill?</summary><div class="a"><p>On PITC web bills (LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO, HESCO) the meter-reading table lists four rows for a net-metering connection: import off-peak, import peak, export off-peak and export peak, each with previous reading, present reading and units. The same numbers are in the net-metering QR code as IMP-OP, IMP-PK, EXP-OP and EXP-PK.</p></div></details>
+<details><summary>What does a minus sign in NET units mean?</summary><div class="a"><p>It means you sent more units to the grid than you took in that band. NET-OP of −47 means 47 more daytime units were exported than imported. Negative net units are credited, not charged.</p></div></details>
+<details><summary>What does CR mean on my electricity bill?</summary><div class="a"><p>CR stands for credit. An amount such as 162,458 CR means the DISCO owes you that much, and it is adjusted against future bills. You do not pay a bill that ends in CR.</p></div></details>
+<details><summary>Why are the billed units so much lower than my import units?</summary><div class="a"><p>Billed units are net units: imports minus exports, added across the off-peak and peak bands. A household that imported 1,198 units and exported 919 has 279 billed units, even though it used far more electricity from the grid.</p></div></details>
+<details><summary>What is COE on a net-metering bill?</summary><div class="a"><p>COE is the cost of electricity: net units multiplied by the off-peak and peak rates, before the fixed charge and taxes. On a bill at the end of a settlement cycle it also includes the units carried forward from earlier months.</p></div></details>
+<details><summary>Is the QR code on my bill the same as the printed figures?</summary><div class="a"><p>It should be. PITC bills carry a payment QR (for paying through banking apps) and a net-metering QR with the meter units and bill components. Solar Bill reads both and flags any difference from the printed numbers.</p></div></details>
+</div>
+  </section>
+  <aside class="cta">
+    <h2>See this on your own bill</h2>
+    <p>Add your DISCO web-bill PDF. Solar Bill reads it inside your browser and explains every figure in plain words.</p>
+    <div class="row"><a class="pill" href="/app">Check your bill</a><a class="more" href="/app?sample=1">See a sample bill</a></div>
+  </aside>
+  <nav class="related" aria-label="Related guides"><h2>Keep reading</h2><ul><li><a href="/blog/net-metering-bill-calculation">How a net-metering bill is calculated, step by step<span>The formula behind your solar bill, worked through rupee by rupee on a real LESCO bill so you can check your own.</span></a></li><li><a href="/blog/why-net-metering-bill-still-high">Why your net-metering bill is still high, even after exporting more<span>Seven reasons a solar home that exports more than it imports still gets a DISCO bill, and which ones you can actually change.</span></a></li><li><a href="/blog/quarterly-settlement-carried-forward-units">Quarterly settlement explained: MONTH COUNT, carried-forward units and credit<span>Why one bill in three looks so different, what the REMAINING units on your bill mean, and what happens to your surplus.</span></a></li></ul></nav>
+  <nav class="explore" aria-label="More from Solar Bill">
+    <div><h2>Solar Bill</h2><ul><li><a href="/">Solar Bill home</a></li><li><a href="/#why">Why a net exporter still pays</a></li><li><a href="/#terms">Bill terms glossary</a></li><li><a href="/#rules">Net metering in 2026</a></li><li><a href="/#faq">Solar bill FAQ</a></li><li><a href="/questions">Every question, answered</a></li><li><a href="/app">Check your bill</a></li><li><a href="/app?sample=1">Sample LESCO bill</a></li></ul></div>
+    <div><h2><a href="/blog/#basics">Read your bill</a></h2><ul><li><a href="/blog/net-metering-bill-calculation">How a net-metering bill is calculated, step by step</a></li></ul></div>
+    <div><h2><a href="/blog/#why">Why the bill is high</a></h2><ul><li><a href="/blog/why-net-metering-bill-still-high">Why your net-metering bill is still high, even after exporting more</a></li><li><a href="/blog/peak-hours-pakistan">Peak hours in Pakistan: timings by season, and what they cost a solar home</a></li><li><a href="/blog/quarterly-settlement-carried-forward-units">Quarterly settlement explained: MONTH COUNT, carried-forward units and credit</a></li><li><a href="/blog/fpa-fixed-charges-taxes-solar-bill">Fixed charges, FPA, QTA and taxes on a solar bill, explained</a></li></ul></div>
+    <div><h2><a href="/blog/#rules">2026 rules and rates</a></h2><ul><li><a href="/blog/net-metering-vs-net-billing-2026">Net metering vs net billing: what changed for solar users in 2026</a></li></ul></div>
+    <div><h2><a href="/blog/#action">Fix it and save</a></h2><ul><li><a href="/blog/wrong-net-metering-bill-complaint">Wrong net-metering bill? How to check it and complain to your DISCO or NEPRA</a></li><li><a href="/blog/download-duplicate-electricity-bill">How to download your LESCO, IESCO, FESCO or any DISCO bill as a PDF</a></li><li><a href="/blog/is-solar-worth-it-pakistan-2026">Is rooftop solar still worth it in Pakistan in 2026?</a></li></ul></div>
+  </nav>
+  <p class="disclaimer">Solar Bill is independent and not affiliated with NEPRA, PITC or any DISCO. Rates, taxes and rules change; your DISCO’s bill is the official record. Policy facts above link to their public sources.</p>
+</article>
+</main>
+<footer class="foot">
+  <div class="wrap">
+    <p class="legal">Bills are read inside your browser. When you sign in, each PDF and its figures are saved privately to your account, and you can download or delete them any time. Solar Bill is an independent tool, not affiliated with NEPRA, PITC or any electricity distribution company.</p>
+    <nav aria-label="Footer">
+      <a href="/app">Check a bill</a>
+      <a href="/app?sample=1">Sample bill</a>
+      <a href="/blog/">Guides</a>
+      <a href="/questions">Questions</a>
+      <a href="/account">My account</a>
+      <a href="/privacy">Privacy Policy</a>
+      <a href="/terms">Terms of Service</a>
+    </nav>
+    <p>© 2026 Solar Bill</p>
+  </div>
+</footer>
+<script src="/site.js" defer></script>
+</body>
+</html>

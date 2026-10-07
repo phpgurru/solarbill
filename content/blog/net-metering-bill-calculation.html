@@ -1,0 +1,106 @@
+---
+{
+ "featured": true,
+ "order": 2,
+ "title": "How a net-metering bill is calculated, step by step",
+ "seoTitle": "Net-Metering Bill Calculation in Pakistan: Step-by-Step Formula",
+ "description": "The exact formula DISCOs use for a net-metering bill in Pakistan: net units by band, peak rate, buyback rate, carried-forward units, fixed charge, duty and 18% GST, worked through on a real LESCO bill.",
+ "dek": "The formula behind your solar bill, worked through rupee by rupee on a real LESCO bill so you can check your own.",
+ "topic": "basics",
+ "date": "2026-10-07",
+ "keywords": ["net metering bill calculation", "how to calculate net metering bill", "solar bill calculation Pakistan", "LESCO bill calculation formula", "GST on electricity bill", "electricity duty"],
+ "answer": "<ul><li><b>1. Net units per band:</b> import − export, separately for off-peak and peak.</li><li><b>2. Add carried-forward units</b> if this is the settlement month (MONTH COUNT 3/3).</li><li><b>3. Cost of electricity:</b> peak net × peak rate, plus off-peak net × off-peak rate (or × the buyback rate if off-peak is a surplus).</li><li><b>4. Add the fixed charge</b> (and FPA or QTA if billed).</li><li><b>5. Electricity duty</b>, if your bill still shows it: ED-RATE % of the energy cost (1.5% in our example).</li><li><b>6. GST:</b> 18% of energy cost + fixed charge + duty.</li><li><b>7. Payable:</b> previous balance (arrears or credit) + this bill.</li></ul>",
+ "howto": {
+  "name": "Calculate a net-metering electricity bill",
+  "steps": [
+   ["Find net units per band", "Subtract export from import separately for off-peak (IMP-OP − EXP-OP) and peak (IMP-PK − EXP-PK)."],
+   ["Add carried-forward units", "On the last month of the settlement cycle, add REMAINING-PREVIOUS-OP and REMAINING-PREVIOUS-PK to this month's net units."],
+   ["Price the units", "Multiply peak net units by the peak rate. Multiply off-peak net units by the off-peak rate if positive, or by the buyback rate if negative (a surplus). Add them to get the cost of electricity (COE)."],
+   ["Add the fixed charge", "Add FIX-CHRG and any fuel or quarterly adjustment shown on the bill."],
+   ["Add electricity duty", "If the bill shows ED-RATE, multiply COE by that percentage."],
+   ["Add GST", "Multiply COE + fixed charge + electricity duty by 18%."],
+   ["Apply the balance", "Add arrears, or subtract the credit (CR), to get the amount payable."]
+  ]
+ },
+ "faq": [
+  ["What rate are exported units credited at?", "Under the pre-February 2026 net-metering terms, a net surplus is bought back at NEPRA’s national average power purchase price: Rs 25.32 per unit for calendar year 2026. New net-billing prosumers are paid the national average energy purchase price instead, Rs 8.13 per unit in NEPRA’s 2026 determination (media often round this to Rs 10–11). Your bill prints the rate actually applied in its bill-calculation lines."],
+  ["Is GST charged on solar export units?", "Exported units are not taxed. GST is charged at 18% on the bill’s taxable value. In February 2025 the Federal Tax Ombudsman ordered DISCOs to charge GST on the gross value of imported units rather than the net after exports; where that is applied, GST is higher than 18% of the net energy cost. Our sample LESCO bill shows GST on the net amount."],
+  ["Is electricity duty still charged on my bill?", "For most domestic consumers, no. The federal government asked provinces to stop collecting electricity duty through bills from 1 July 2025, and the Rs 35 PTV fee was removed at the same time. If your bill still shows E-DUTY, its rate is printed as ED-RATE in the net-metering QR; the LESCO sample in this guide shows 1.5%."],
+  ["Why does my COE not match this month’s net units times the rate?", "On the settlement month (MONTH COUNT 3/3) the cost of electricity covers the whole cycle, so it includes REMAINING-PREVIOUS units carried from the earlier months. Fuel and quarterly adjustments can also add to it."],
+  ["Is the fixed charge reduced by solar exports?", "No. The fixed charge is a monthly amount that is not netted against exported units. It is billed even in a month when you export far more than you import."]
+ ],
+ "related": ["how-to-read-net-metering-bill", "why-net-metering-bill-still-high", "fpa-fixed-charges-taxes-solar-bill"]
+}
+---
+<p>DISCO bills look intimidating, but a net-metering bill under the pre-2026 terms follows one short formula. Below, each step is applied to a real LESCO bill for September 2026 (tariff <code>A-1b(03)T</code>, 8 kW sanctioned load, 11.5 kW solar). Every number comes from the bill or its net-metering QR code, so you can follow along with your own.</p>
+
+<h2>The inputs</h2>
+<div class="scroll"><table>
+<thead><tr><th>Field</th><th class="n">Value</th></tr></thead>
+<tbody>
+<tr><td>Import off-peak (IMP-OP)</td><td class="n">871 kWh</td></tr>
+<tr><td>Import peak (IMP-PK)</td><td class="n">327 kWh</td></tr>
+<tr><td>Export off-peak (EXP-OP)</td><td class="n">918 kWh</td></tr>
+<tr><td>Export peak (EXP-PK)</td><td class="n">1 kWh</td></tr>
+<tr><td>Carried forward, off-peak (REMAINING-PREVIOUS-OP)</td><td class="n">−1,066 kWh</td></tr>
+<tr><td>Carried forward, peak (REMAINING-PREVIOUS-PK)</td><td class="n">622 kWh</td></tr>
+<tr><td>Month count</td><td class="n">3/3</td></tr>
+<tr><td>Buyback rate for an off-peak surplus</td><td class="n">Rs 25.32</td></tr>
+<tr><td>Peak rate</td><td class="n">Rs 46.85</td></tr>
+<tr><td>Electricity duty rate (ED-RATE)</td><td class="n">1.5%</td></tr>
+<tr><td>Fixed charge (FIX-CHRG)</td><td class="n">Rs 2,700</td></tr>
+</tbody></table></div>
+<p>The two rates are printed in the bill-calculation lines of the net-metering QR as <code>25.320 X -47</code> and <code>46.850 X 326</code>. Rs 46.85 is the time-of-use peak tariff (NEPRA, S.R.O. 279(I)/2026). Rs 25.32 is the buyback rate for surplus units under pre-2026 agreements, NEPRA’s national average power purchase price for 2026. Had the off-peak band been net positive, it would have been charged at the off-peak tariff, Rs 34.53.</p>
+
+<h2>Step 1: net units in each band</h2>
+<pre><code>NET-OP = IMP-OP − EXP-OP = 871 − 918 = −47
+NET-PK = IMP-PK − EXP-PK = 327 − 1   = 326
+Billed units = −47 + 326             = 279</code></pre>
+<p>Off-peak and peak are never merged into one number before pricing. That single rule explains most surprise bills.</p>
+
+<h2>Step 2: add the carried-forward units</h2>
+<p>This bill is month 3 of 3, so it settles the whole quarter. The units carried from July and August are added:</p>
+<pre><code>Quarter off-peak = −47 + (−1,066) = −1,113
+Quarter peak     = 326 + 622      =    948</code></pre>
+<p>In months 1 and 2 of a cycle this step is skipped and the month’s net units roll forward instead. See <a href="/blog/quarterly-settlement-carried-forward-units">quarterly settlement explained</a>.</p>
+
+<h2>Step 3: cost of electricity (COE)</h2>
+<pre><code>Off-peak: −1,113 × 25.32 = −28,181.16  (credit)
+Peak:        948 × 46.85 =  44,413.80  (charge)
+COE                      =  16,232.64</code></pre>
+<p>The bill prints <b>Rs 16,232.51</b>; the 13 paisa difference is rounding. Note what happened: the quarter ended <b>165 units in credit</b> (1,113 − 948), yet the energy cost is over Rs 16,000, because each peak unit costs <b>1.85 times</b> what an off-peak unit earns.</p>
+
+<h2>Step 4: add the fixed charge</h2>
+<pre><code>COE + fixed charge = 16,232.51 + 2,700 = 18,932.51</code></pre>
+<p>This is the <b>total charges</b> line. Since February 2026, time-of-use consumers pay <b>Rs 675 per kW per month</b> on the higher of half their sanctioned load or their MDI: here, half of 8 kW is 4 kW and MDI is 4 kW, so 4 × 675 = Rs 2,700. The fixed charge is not reduced by exports. Some bills add <b>FPA</b> (fuel price adjustment) or <b>QTA</b> (quarterly tariff adjustment) here; see <a href="/blog/fpa-fixed-charges-taxes-solar-bill">FPA, fixed charges and taxes</a>.</p>
+
+<h2>Step 5: electricity duty</h2>
+<pre><code>E-DUTY = 1.5% × 16,232.51 = 243.49</code></pre>
+<p>Electricity duty is a provincial levy on the energy cost, printed as <code>ED-RATE</code> in the QR. The federal government asked provinces to stop collecting it through electricity bills from July 2025, so many domestic bills now show none; this bill still carries it. If yours doesn’t, skip this step.</p>
+
+<h2>Step 6: GST</h2>
+<pre><code>GST = 18% × (16,232.51 + 2,700 + 243.49)
+    = 18% × 19,176.00
+    = 3,451.68  → bill shows 3,452</code></pre>
+<p>Sales tax is charged on the energy cost, the fixed charge and the duty together. In February 2025 the Federal Tax Ombudsman ordered DISCOs to charge GST on the gross value of imported units, not the net after exports. This bill uses the net figure; if your GST is well above 18% of the line above, that order is the likely reason.</p>
+
+<h2>Step 7: the current bill and what you pay</h2>
+<pre><code>Taxes        = 243.49 + 3,452        =   3,695.49
+Current bill = 18,932.51 + 3,695.49  =  22,628.00
+Arrears      = −185,086  (credit carried in)
+Payable      = −185,086 + 22,628     = −162,458  → printed "162,458 CR"</code></pre>
+<p>This household paid nothing. The Rs 22,628 came out of its credit balance. A household without that cushion would have paid Rs 22,628 in a quarter it exported more than it imported.</p>
+
+<h2>A shortcut for a quick estimate</h2>
+<p>With 1.5% duty and 18% GST, every rupee of energy cost becomes about <b>Rs 1.198</b> on the bill, and every rupee of fixed charge becomes <b>Rs 1.18</b>. So:</p>
+<pre><code>Bill ≈ COE × 1.198 + fixed charge × 1.18
+     ≈ 16,232.51 × 1.198 + 2,700 × 1.18 ≈ 22,632</code></pre>
+<p>Close enough to sanity-check any bill in your head. It also tells you that <b>one peak unit avoided</b> saves about 46.85 × 1.198 ≈ <b>Rs 56</b> on this tariff, while one extra off-peak unit exported earns about 25.32 × 1.198 ≈ <b>Rs 30</b>.</p>
+
+<h2>What this formula does not cover</h2>
+<ul>
+<li><b>Net-billing (2026) bills</b> price imports and exports separately, with exports bought at a much lower rate. See <a href="/blog/net-metering-vs-net-billing-2026">net metering vs net billing</a>.</li>
+<li><b>Protected-consumer slabs</b> don’t apply: time-of-use connections (5 kW and above), which most solar homes have, cannot be protected consumers.</li>
+<li><b>Income tax, further tax and other levies</b> can appear depending on your filer status and DISCO.</li>
+</ul>
+<p>Solar Bill runs all of these checks automatically and tells you which line, if any, doesn’t add up.</p>

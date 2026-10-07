@@ -72,10 +72,10 @@
       "@id": "https://solarbill.pk/#faq",
       "dateModified": "2026-09-26",
       "mainEntity": [
-        { "@type": "Question", "name": "Why did I get a bill when I exported more units than I imported?", "acceptedAnswer": { "@type": "Answer", "text": "Net metering is settled by value, not just units. Evening (peak) imports are charged at the peak rate, while surplus exports are credited at the off-peak rate, and fixed charges, fuel price adjustment and taxes are not netted against exports. So a household can export more units than it uses and still owe money. On our sample LESCO bill, the quarter ended 165 units in credit but still carried an energy charge of Rs 16,233." } },
+        { "@type": "Question", "name": "Why did I get a bill when I exported more units than I imported?", "acceptedAnswer": { "@type": "Answer", "text": "Net metering is settled by value, not just units. Evening (peak) imports are charged at the peak rate, while surplus daytime exports are bought back at the lower buyback rate, and fixed charges, fuel price adjustment and taxes are not netted against exports. So a household can export more units than it uses and still owe money. On our sample LESCO bill, the quarter ended 165 units in credit but still carried an energy charge of Rs 16,233." } },
         { "@type": "Question", "name": "What are import and export units on a net-metering bill?", "acceptedAnswer": { "@type": "Answer", "text": "Import units are the electricity you draw from the grid, mostly at night and in the evening. Export units are the surplus your solar panels send to the grid during the day. Both are recorded by the bidirectional (green) meter and split into peak (PK) and off-peak (OP) registers." } },
         { "@type": "Question", "name": "Did net metering end in Pakistan in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "For new applicants, yes. NEPRA's Prosumer Regulations, notified on 9 February 2026, replaced net metering with net billing, where imports and exports are priced separately. An amendment notified in April 2026 lets consumers with a valid agreement on 9 February 2026 keep their earlier terms until the agreement expires, as long as they do not enlarge their system." } },
-        { "@type": "Question", "name": "What is the net-metering buyback rate in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "Reports put the rate for existing (pre-February 2026) agreements at about Rs 25 to 26 per unit, and the rate for new net-billing prosumers at roughly Rs 8 to 11 per unit, linked to the national average energy purchase price. Your own bill shows the rates actually applied to you." } },
+        { "@type": "Question", "name": "What is the net-metering buyback rate in 2026?", "acceptedAnswer": { "@type": "Answer", "text": "For existing (pre-February 2026) agreements it is NEPRA’s national average power purchase price, Rs 25.32 per unit for 2026. New net-billing prosumers get the national average energy purchase price, Rs 8.13 per unit in NEPRA’s 2026 determination, though media often round it to Rs 10 to 11. Your own bill shows the rates actually applied to you." } },
         { "@type": "Question", "name": "What are peak hours on an electricity bill?", "acceptedAnswer": { "@type": "Answer", "text": "Peak hours are a four-hour evening window when electricity costs more. The window moves with the season, roughly 5 to 9 PM in winter and 7 to 11 PM in summer. Units you import in this window are billed at the peak rate." } },
         { "@type": "Question", "name": "What does MONTH COUNT 3/3 mean on my bill?", "acceptedAnswer": { "@type": "Answer", "text": "It shows where your bill falls in the settlement cycle. Surplus units are carried forward from month to month, and at the end of the cycle (3/3 on a quarterly cycle) the carried units are settled. That is why a bill at the end of a cycle can look very different from the months before it." } },
         { "@type": "Question", "name": "Which electricity companies does Solar Bill support?", "acceptedAnswer": { "@type": "Answer", "text": "Solar Bill reads net-metering web bills from LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO, which share the PITC web-bill layout and QR codes. K-Electric bills use a different format and are not supported yet." } },
@@ -96,6 +96,7 @@
     <nav aria-label="Main">
       <a href="/#why">Why you still pay</a>
       <a href="/#features">Features</a>
+      <a href="/blog/">Guides</a>
       <a href="/#rules">2026 rules</a>
       <a href="/#faq">FAQ</a>
     </nav>
@@ -239,7 +240,7 @@
         <div><dt>Net units<code>NET</code></dt><dd>Imports minus exports in each band. A minus sign means you sent more than you took.</dd></div>
         <div><dt>Month count<code>3/3</code></dt><dd>Where this bill sits in the settlement cycle. Carried units are settled at the end of it.</dd></div>
         <div><dt>Carried-forward units<code>REMAINING</code></dt><dd>Surplus units rolled over from earlier months of the cycle.</dd></div>
-        <div><dt>Buyback rate</dt><dd>What the DISCO pays for surplus units. Reported at about Rs 25–26 for pre-2026 agreements.</dd></div>
+        <div><dt>Buyback rate</dt><dd>What the DISCO pays for surplus units: Rs 25.32 for pre-2026 agreements in 2026, Rs 8.13 under net billing.</dd></div>
         <div><dt>Green meter</dt><dd>The bidirectional meter fitted for net metering. It records imports and exports separately.</dd></div>
         <div><dt>Net billing</dt><dd>The 2026 system for new solar users: imports and exports are priced separately instead of netted.</dd></div>
       </dl>
@@ -252,7 +253,7 @@
       <h2 class="h2">Net metering in 2026: what changed.</h2>
       <p class="intro">NEPRA’s Prosumer Regulations changed the rules for new rooftop-solar users. Here is what that means for the bill in your hand.</p>
       <dl class="ref">
-        <div><dt>9 February 2026</dt><dd>Net billing replaces net metering for new applicants. Imports are billed at the full tariff and exports are bought back separately, at roughly Rs 8–11 per unit. New agreements run five years, and solar capacity is capped at your sanctioned load. (<a href="https://www.dawn.com/news/1972203" rel="noopener">Dawn</a>, <a href="https://tribune.com.pk/story/2591628/nepra-rolls-out-new-regulations-abolishing-net-metering" rel="noopener">Express Tribune</a>)</dd></div>
+        <div><dt>9 February 2026</dt><dd>Net billing replaces net metering for new applicants. Imports are billed at the full tariff and exports are bought back separately, at Rs 8.13 per unit in NEPRA’s 2026 determination (often reported as Rs 10–11). New agreements run five years, and solar capacity is capped at your sanctioned load. (<a href="https://www.dawn.com/news/1972203" rel="noopener">Dawn</a>, <a href="https://tribune.com.pk/story/2591628/nepra-rolls-out-new-regulations-abolishing-net-metering" rel="noopener">Express Tribune</a>)</dd></div>
         <div><dt>April 2026</dt><dd>Existing users keep their terms. Consumers with a valid agreement on 9 February 2026 are billed under the earlier mechanism until it expires. Enlarging the system gives those terms up. (<a href="https://profit.pakistantoday.com.pk/2026/04/03/nepra-protects-existing-solar-net-metering-users-restricts-system-expansion-benefits/" rel="noopener">Profit</a>)</dd></div>
         <div><dt>466,000 consumers</dt><dd>Pakistan had roughly 466,000 net-metering consumers and about 7,000 MW of grid-tied solar as of February 2026. (<a href="https://profit.pakistantoday.com.pk/2026/02/10/pakistans-power-regulator-ends-net-metering-for-solar-consumers-shifts-to-net-billing-model/" rel="noopener">Profit</a>)</dd></div>
         <div><dt>What Solar Bill reads</dt><dd>Net-metering bills under the earlier terms, from the seven DISCOs above. Bills under the new net-billing rules are laid out and priced differently.</dd></div>
@@ -261,26 +262,42 @@
     </div>
   </section>
 
-  <section class="band" id="faq">
+  <section class="band" id="guides">
+    <div class="wrap">
+      <span class="eyebrow">Guides</span>
+      <h2 class="h2">Understand every rupee.</h2>
+      <p class="intro">Plain-language guides to how your DISCO calculates a solar bill, and what you can change.</p>
+      <!-- guides:start -->
+      <ul class="guides">
+        <li><a href="/blog/why-net-metering-bill-still-high"><span class="k">Why the bill is high</span><h3>Why your net-metering bill is still high, even after exporting more</h3><p>Seven reasons a solar home that exports more than it imports still gets a DISCO bill, and which ones you can actually change.</p><span class="m">Read the guide ›</span></a></li>
+        <li><a href="/blog/how-to-read-net-metering-bill"><span class="k">Read your bill</span><h3>How to read a net-metering bill, line by line</h3><p>Every box, code and number on a LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO or HESCO net-metering bill, using one real bill as the example.</p><span class="m">Read the guide ›</span></a></li>
+        <li><a href="/blog/net-metering-bill-calculation"><span class="k">Read your bill</span><h3>How a net-metering bill is calculated, step by step</h3><p>The formula behind your solar bill, worked through rupee by rupee on a real LESCO bill so you can check your own.</p><span class="m">Read the guide ›</span></a></li>
+      </ul>
+      <!-- guides:end -->
+      <div class="actions"><a class="more" href="/blog/">All guides</a><a class="more" href="/questions">Every question, answered</a></div>
+    </div>
+  </section>
+
+  <section class="band alt" id="faq">
     <div class="wrap narrow">
       <span class="eyebrow">FAQ</span>
       <h2 class="h2">Solar bill questions, answered.</h2>
       <div class="faq">
-        <details><summary>Why did I get a bill when I exported more units than I imported?</summary><div class="a"><p>Net metering is settled by value, not just units. Evening (peak) imports are charged at the peak rate, while surplus exports are credited at the off-peak rate, and fixed charges, fuel price adjustment and taxes are not netted against exports. So a household can export more units than it uses and still owe money.</p><p>On our sample LESCO bill, the quarter ended 165 units in credit but still carried an energy charge of Rs 16,233.</p></div></details>
-        <details><summary>What are import and export units on a net-metering bill?</summary><div class="a"><p>Import units are the electricity you draw from the grid, mostly at night and in the evening. Export units are the surplus your solar panels send to the grid during the day. Both are recorded by the bidirectional (green) meter and split into peak (PK) and off-peak (OP) registers.</p></div></details>
-        <details><summary>Did net metering end in Pakistan in 2026?</summary><div class="a"><p>For new applicants, yes. NEPRA’s Prosumer Regulations, notified on 9 February 2026, replaced net metering with net billing, where imports and exports are priced separately.</p><p>An amendment notified in April 2026 lets consumers with a valid agreement on 9 February 2026 keep their earlier terms until the agreement expires, as long as they do not enlarge their system.</p></div></details>
-        <details><summary>What is the net-metering buyback rate in 2026?</summary><div class="a"><p>Reports put the rate for existing (pre-February 2026) agreements at about Rs 25 to 26 per unit, and the rate for new net-billing prosumers at roughly Rs 8 to 11 per unit, linked to the national average energy purchase price. Your own bill shows the rates actually applied to you, and Solar Bill reads them for you.</p></div></details>
-        <details><summary>What are peak hours on an electricity bill?</summary><div class="a"><p>Peak hours are a four-hour evening window when electricity costs more. The window moves with the season, roughly 5 to 9 PM in winter and 7 to 11 PM in summer. Units you import in this window are billed at the peak rate.</p></div></details>
-        <details><summary>What does MONTH COUNT 3/3 mean on my bill?</summary><div class="a"><p>It shows where your bill falls in the settlement cycle. Surplus units are carried forward from month to month, and at the end of the cycle (3/3 on a quarterly cycle) the carried units are settled. That is why a bill at the end of a cycle can look very different from the months before it.</p></div></details>
+        <details><summary>Why did I get a bill when I exported more units than I imported?</summary><div class="a"><p>Net metering is settled by value, not just units. Evening (peak) imports are charged at the peak rate, while surplus daytime exports are bought back at the lower buyback rate, and fixed charges, fuel price adjustment and taxes are not netted against exports. So a household can export more units than it uses and still owe money.</p><p>On our sample LESCO bill, the quarter ended 165 units in credit but still carried an energy charge of Rs 16,233.</p><p><a href="/blog/why-net-metering-bill-still-high">Seven reasons a solar bill stays high</a></p></div></details>
+        <details><summary>What are import and export units on a net-metering bill?</summary><div class="a"><p>Import units are the electricity you draw from the grid, mostly at night and in the evening. Export units are the surplus your solar panels send to the grid during the day. Both are recorded by the bidirectional (green) meter and split into peak (PK) and off-peak (OP) registers.</p><p><a href="/blog/how-to-read-net-metering-bill">How to read a net-metering bill, line by line</a></p></div></details>
+        <details><summary>Did net metering end in Pakistan in 2026?</summary><div class="a"><p>For new applicants, yes. NEPRA’s Prosumer Regulations, notified on 9 February 2026, replaced net metering with net billing, where imports and exports are priced separately.</p><p>An amendment notified in April 2026 lets consumers with a valid agreement on 9 February 2026 keep their earlier terms until the agreement expires, as long as they do not enlarge their system.</p><p><a href="/blog/net-metering-vs-net-billing-2026">Net metering vs net billing: what changed in 2026</a></p></div></details>
+        <details><summary>What is the net-metering buyback rate in 2026?</summary><div class="a"><p>For existing (pre-February 2026) agreements it is NEPRA’s national average power purchase price, Rs 25.32 per unit for 2026. New net-billing prosumers get the national average energy purchase price, Rs 8.13 per unit in NEPRA’s 2026 determination, though media often round it to Rs 10 to 11. Your own bill shows the rates actually applied to you, and Solar Bill reads them for you.</p></div></details>
+        <details><summary>What are peak hours on an electricity bill?</summary><div class="a"><p>Peak hours are a four-hour evening window when electricity costs more. The window moves with the season, roughly 5 to 9 PM in winter and 7 to 11 PM in summer. Units you import in this window are billed at the peak rate.</p><p><a href="/blog/peak-hours-pakistan">Peak hours by season and DISCO</a></p></div></details>
+        <details><summary>What does MONTH COUNT 3/3 mean on my bill?</summary><div class="a"><p>It shows where your bill falls in the settlement cycle. Surplus units are carried forward from month to month, and at the end of the cycle (3/3 on a quarterly cycle) the carried units are settled. That is why a bill at the end of a cycle can look very different from the months before it.</p><p><a href="/blog/quarterly-settlement-carried-forward-units">How quarterly settlement works</a></p></div></details>
         <details><summary>Which electricity companies does Solar Bill support?</summary><div class="a"><p>Solar Bill reads net-metering web bills from LESCO, IESCO, FESCO, GEPCO, MEPCO, PESCO and HESCO, which share the PITC web-bill layout and QR codes. K-Electric bills use a different format and are not supported yet.</p></div></details>
         <details><summary>Is it safe to upload my electricity bill?</summary><div class="a"><p>Without an account, your bill is read entirely inside your browser and nothing is sent to our servers. If you sign in with Google to save your bills, the PDF and its figures are stored privately under your account, and you can download or delete them at any time.</p></div></details>
-        <details><summary>How do I get my net-metering bill PDF?</summary><div class="a"><p>Open your DISCO’s online web-bill page, enter the 14-digit reference number or consumer ID printed on your paper bill, and save or print the bill as a PDF. Solar Bill also reads a clear photo of the bill’s QR codes.</p></div></details>
+        <details><summary>How do I get my net-metering bill PDF?</summary><div class="a"><p>Open your DISCO’s online web-bill page, enter the 14-digit reference number or consumer ID printed on your paper bill, and save or print the bill as a PDF. Solar Bill also reads a clear photo of the bill’s QR codes.</p><p><a href="/blog/download-duplicate-electricity-bill">Download your bill for any DISCO</a></p></div></details>
         <details><summary>Is Solar Bill free?</summary><div class="a"><p>Yes. Checking a bill is free and needs no account. Signing in, also free, saves your bills by consumer ID, shows month-by-month trends and sends one reminder a month when your new bill is out.</p></div></details>
       </div>
     </div>
   </section>
 
-  <section class="band alt center">
+  <section class="band center">
     <div class="wrap">
       <h2 class="h2">Your next bill is on its way.<br>Know what it means.</h2>
       <div class="actions">
@@ -297,6 +314,8 @@
     <nav aria-label="Footer">
       <a href="/app">Check a bill</a>
       <a href="/app?sample=1">Sample bill</a>
+      <a href="/blog/">Guides</a>
+      <a href="/questions">Questions</a>
       <a href="/account">My account</a>
       <a href="/privacy">Privacy Policy</a>
       <a href="/terms">Terms of Service</a>
